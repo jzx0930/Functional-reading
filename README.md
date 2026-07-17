@@ -45,7 +45,7 @@ Functional-reading/
 |------|------|-----------|------|
 | [scroll-world](https://github.com/oso95/scroll-world) | AI Skill / 網頁特效 | 把任何品牌變成滾動穿越的 3D 世界 landing page | [scroll-world/](./scroll-world/README.md) |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | AI Skills / 工程工作流 | 一整套「真實工程」用的 agent skills | [mattpocock-skills/](./mattpocock-skills/README.md) |
-| 2 則 Threads 貼文 | 待處理 | 動態頁面，尚未讀取 | 待補 |
+| [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | AI Coding / MCP | 把 codebase 索引成知識圖譜，讓 AI 省 token | [codebase-memory-mcp/](./codebase-memory-mcp/README.md) |
 
 ## 慣例
 
