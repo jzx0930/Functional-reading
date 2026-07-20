@@ -1,0 +1,246 @@
+<!-- =========================================================
+     簡易購物車 + 一次結帳頁面（貨到付款）
+     - 純靜態，可直接放 GitHub Pages（購物車是前端 JS，不需伺服器）
+     - 結帳目前「尚未接後台」：送出會顯示整張訂單摘要預覽
+     - 之後要真的收到訂單，看檔案最底部「如何接收訂單」註解
+     ★ 要改商品：直接改下面 <script> 最上方的 PRODUCTS 陣列
+     ========================================================= -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品訂購</title>
+<style>
+  :root{
+    --accent:#c2703d;          /* ★ 主色 */
+    --accent-dark:#a15a2e;
+    --bg:#faf6f1; --card:#fff; --text:#2b2622; --muted:#8a8078;
+    --line:#e8ddd2; --ok:#3f8f5b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:720px;margin:0 auto;padding:24px 18px 60px}
+  h1{font-size:1.5rem;margin:.2em 0}
+  h2{font-size:1.15rem;margin:0 0 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:20px}
+  .cod-badge{display:inline-block;background:#f2e7dc;color:var(--accent-dark);
+    font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:20px}
+
+  /* 商品列表 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .product{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column}
+  .product img{width:100%;height:140px;object-fit:cover;border-radius:10px;background:#efe7dd}
+  .product .name{font-weight:700;margin:10px 0 2px}
+  .product .desc{color:var(--muted);font-size:.85rem;margin:0 0 8px;flex-grow:1}
+  .product .price{color:var(--accent);font-weight:700;font-size:1.1rem;margin:0 0 10px}
+  .addbtn{padding:9px;border:none;border-radius:9px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+  .addbtn:hover{background:var(--accent-dark)}
+
+  /* 購物車 */
+  .cart-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .cart-row:last-child{border-bottom:none}
+  .cart-row .ci-name{flex-grow:1;font-weight:600}
+  .qty{display:flex;align-items:center;gap:6px}
+  .qty button{width:28px;height:28px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:1rem;cursor:pointer;line-height:1}
+  .qty span{min-width:22px;text-align:center}
+  .ci-sub{min-width:70px;text-align:right;font-weight:600}
+  .ci-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem}
+  .cart-empty{color:var(--muted);text-align:center;padding:12px 0}
+  .total{display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700;margin-top:14px;padding-top:14px;border-top:2px solid var(--line)}
+  .total .amt{color:var(--accent)}
+
+  /* 表單 */
+  label{display:block;font-weight:600;font-size:.92rem;margin:16px 0 6px}
+  .req{color:var(--accent)}
+  input,select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;background:#fff;color:var(--text)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  textarea{resize:vertical;min-height:70px}
+  .row{display:flex;gap:12px}.row>div{flex:1}
+  .hint{font-size:.82rem;color:var(--muted);margin-top:5px}
+  .err{color:#c0392b;font-size:.82rem;margin-top:5px;display:none}
+  button.submit{width:100%;margin-top:24px;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer}
+  button.submit:hover{background:var(--accent-dark)}
+  button.submit:disabled{background:#d8cabb;cursor:not-allowed}
+
+  .summary{display:none;background:#f2faf4;border:1px solid #cfe9d6;border-radius:12px;padding:18px;margin-top:20px}
+  .summary h3{margin:0 0 10px;color:var(--ok)}
+  .summary dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+  .summary dt{color:var(--muted)} .summary dd{margin:0;font-weight:600}
+  .summary .items{margin:4px 0 12px;padding-left:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <h1>選購商品 <span class="cod-badge">貨到付款</span></h1>
+    <div class="grid" id="productGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>🛒 購物車</h2>
+    <div id="cartBody"><p class="cart-empty">購物車是空的，先從上面加入商品吧</p></div>
+    <div class="total" id="totalRow" style="display:none">
+      <span>合計</span><span class="amt" id="cartTotal">NT$ 0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>填寫收件資料</h2>
+    <p class="hint">付款方式為<strong>貨到付款</strong>，商品送達時再付款即可。</p>
+    <form id="orderForm" novalidate>
+      <label>姓名 <span class="req">*</span></label>
+      <input type="text" id="name" placeholder="請填收件人姓名">
+      <div class="err" id="err-name">請填寫姓名</div>
+
+      <label>電話 <span class="req">*</span></label>
+      <input type="tel" id="phone" placeholder="09xx-xxx-xxx" inputmode="numeric">
+      <div class="err" id="err-phone">請填寫正確的電話號碼</div>
+
+      <label>寄送方式 <span class="req">*</span></label>
+      <select id="ship">
+        <option value="">請選擇</option>
+        <option>宅配到府・貨到付款</option>
+        <option>超商取貨・貨到付款</option>
+      </select>
+      <div class="err" id="err-ship">請選擇寄送方式</div>
+
+      <label>收件地址 / 取貨門市 <span class="req">*</span></label>
+      <input type="text" id="addr" placeholder="宅配填地址；超商填「門市名稱」">
+      <div class="err" id="err-addr">請填寫收件地址或取貨門市</div>
+
+      <label>備註（選填）</label>
+      <textarea id="note" placeholder="例如：指定到貨時間..."></textarea>
+
+      <button type="submit" class="submit" id="submitBtn" disabled>購物車是空的</button>
+    </form>
+
+    <div class="summary" id="summary">
+      <h3>✓ 訂單已填寫</h3>
+      <div id="summaryItems"></div>
+      <dl id="summaryList"></dl>
+      <p class="hint" style="margin-top:12px">（此表單尚未連接後台，這是預覽畫面。接好收單服務後，資料就會自動寄給你。）</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ★★★ 改商品在這裡：id 隨意但不可重複 ★★★ */
+  const PRODUCTS = [
+    {id:'a', name:'手工香氛蠟燭', price:480, desc:'天然大豆蠟，燃燒約 40 小時，附禮盒。', img:'product-a.jpg'},
+    {id:'b', name:'擴香竹禮盒',   price:620, desc:'室內擴香，約可使用 3 個月。',        img:'product-b.jpg'},
+    {id:'c', name:'香氛旅行組',   price:350, desc:'隨身小容量，三款香味一組。',          img:'product-c.jpg'},
+  ];
+
+  const cart = {}; // { id: qty }
+  const money = n => 'NT$ ' + n.toLocaleString();
+  const P = id => PRODUCTS.find(p=>p.id===id);
+
+  // 渲染商品
+  document.getElementById('productGrid').innerHTML = PRODUCTS.map(p=>`
+    <div class="product">
+      <img src="${p.img}" alt="${p.name}">
+      <p class="name">${p.name}</p>
+      <p class="desc">${p.desc}</p>
+      <p class="price">${money(p.price)}</p>
+      <button class="addbtn" data-add="${p.id}">加入購物車</button>
+    </div>`).join('');
+
+  // 渲染購物車
+  function renderCart(){
+    const ids = Object.keys(cart).filter(id=>cart[id]>0);
+    const body = document.getElementById('cartBody');
+    const totalRow = document.getElementById('totalRow');
+    const btn = document.getElementById('submitBtn');
+    if(ids.length===0){
+      body.innerHTML = '<p class="cart-empty">購物車是空的，先從上面加入商品吧</p>';
+      totalRow.style.display='none';
+      btn.disabled=true; btn.textContent='購物車是空的';
+      return;
+    }
+    let total=0;
+    body.innerHTML = ids.map(id=>{
+      const p=P(id), sub=p.price*cart[id]; total+=sub;
+      return `<div class="cart-row">
+        <span class="ci-name">${p.name}</span>
+        <span class="qty">
+          <button data-dec="${id}">−</button><span>${cart[id]}</span><button data-inc="${id}">＋</button>
+        </span>
+        <span class="ci-sub">${money(sub)}</span>
+        <button class="ci-del" data-del="${id}" title="移除">✕</button>
+      </div>`;
+    }).join('');
+    document.getElementById('cartTotal').textContent = money(total);
+    totalRow.style.display='flex';
+    btn.disabled=false; btn.textContent='送出訂單（貨到付款）';
+  }
+
+  // 事件：加入 / 增減 / 移除
+  document.addEventListener('click', e=>{
+    const t=e.target;
+    if(t.dataset.add){ cart[t.dataset.add]=(cart[t.dataset.add]||0)+1; renderCart(); }
+    if(t.dataset.inc){ cart[t.dataset.inc]++; renderCart(); }
+    if(t.dataset.dec){ cart[t.dataset.dec]=Math.max(0,cart[t.dataset.dec]-1); if(cart[t.dataset.dec]===0) delete cart[t.dataset.dec]; renderCart(); }
+    if(t.dataset.del){ delete cart[t.dataset.del]; renderCart(); }
+  });
+
+  // 結帳
+  const form=document.getElementById('orderForm');
+  const fields={
+    name:{el:document.getElementById('name'),err:'err-name',check:v=>v.trim().length>0},
+    phone:{el:document.getElementById('phone'),err:'err-phone',check:v=>/^[0-9\-+\s]{8,}$/.test(v.trim())},
+    ship:{el:document.getElementById('ship'),err:'err-ship',check:v=>v!==''},
+    addr:{el:document.getElementById('addr'),err:'err-addr',check:v=>v.trim().length>0},
+  };
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    if(Object.keys(cart).length===0) return;
+    let ok=true;
+    for(const k in fields){
+      const f=fields[k], valid=f.check(f.el.value);
+      document.getElementById(f.err).style.display=valid?'none':'block';
+      if(!valid) ok=false;
+    }
+    if(!ok) return;
+
+    // 組訂單（接好後台後改成真的送出，見底部註解）
+    const ids=Object.keys(cart);
+    let total=0;
+    const lines=ids.map(id=>{const p=P(id),sub=p.price*cart[id];total+=sub;return `${p.name} × ${cart[id]} = ${money(sub)}`;});
+    document.getElementById('summaryItems').innerHTML='<ul class="items">'+lines.map(l=>`<li>${l}</li>`).join('')+'</ul>';
+    const info={'合計':money(total),'姓名':fields.name.el.value,'電話':fields.phone.el.value,
+      '寄送方式':fields.ship.el.value,'收件地址':fields.addr.el.value,
+      '備註':document.getElementById('note').value||'（無）','付款方式':'貨到付款'};
+    document.getElementById('summaryList').innerHTML=Object.entries(info).map(([k,v])=>`<dt>${k}</dt><dd>${v.replace(/</g,'&lt;')}</dd>`).join('');
+    document.getElementById('summary').style.display='block';
+    form.style.display='none';
+    document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  renderCart();
+</script>
+
+<!-- =========================================================
+     ★ 如何「接收訂單」（之後要做的一步，二選一）★
+
+     方式 A：Web3Forms（免費、免註冊帳號，最快）
+       1. 到 https://web3forms.com 用 email 拿一組 access key
+       2. 表單改成真的送出。做法：在結帳的 submit 事件裡，驗證通過後用 fetch 送出，例如：
+            const payload = { access_key:'你的KEY', 訂單明細:lines.join('、'), 合計:money(total),
+                              姓名:fields.name.el.value, 電話:fields.phone.el.value,
+                              寄送方式:fields.ship.el.value, 收件地址:fields.addr.el.value,
+                              備註:document.getElementById('note').value, 付款方式:'貨到付款' };
+            fetch('https://api.web3forms.com/submit',{method:'POST',
+              headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+       → 客人送出後，整張訂單（含購物車明細）會寄到你的 email
+
+     方式 B：Formspree（https://formspree.io）同理，換成它給的表單網址即可。
+
+     兩種都是純靜態網站可用，不需要 Vercel／Cloudflare。
+     （只有要「線上刷卡、即時庫存、會員、訂單後台」時，才需要 Vercel/Cloudflare。）
+     ========================================================= -->
+</body>
+</html>
