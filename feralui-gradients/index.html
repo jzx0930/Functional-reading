@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FeralUI Gradients</title>
+<style>
+  :root{--accent:#c2703d;--accent2:#6a5acd;--bg:#faf6f1;--card:#fff;--text:#2b2622;--muted:#8a8078;--line:#e8ddd2}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.8rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#f2e7dc;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}
+  .src{font-size:.9rem;color:var(--muted)}
+  /* demo */
+  .demo{border-radius:16px;overflow:hidden;position:relative;height:300px;filter:saturate(1.1)}
+  .grad{position:absolute;inset:-40%;background:
+    radial-gradient(circle at 30% 30%, hsl(var(--h1) 80% 60%), transparent 45%),
+    radial-gradient(circle at 70% 60%, hsl(var(--h2) 80% 60%), transparent 45%),
+    radial-gradient(circle at 50% 80%, hsl(var(--h3) 80% 60%), transparent 45%);
+    filter:blur(var(--blur));animation:swirl 12s ease-in-out infinite alternate}
+  @keyframes swirl{0%{transform:rotate(0) scale(1)}100%{transform:rotate(40deg) scale(1.25)}}
+  .noise{position:absolute;inset:0;opacity:var(--noise);mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .controls label{font-size:.85rem;font-weight:600;display:block;margin-bottom:4px}
+  input[type=range]{width:100%}
+  @media(max-width:520px){.controls{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>FeralUI Gradients</h1>
+<div><span class="tag">設計工具</span><span class="tag">漸層產生器</span></div>
+<p class="lead">把「形狀、模糊、噪點、流動」都變成可調參數的進階漸層設計工具。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="src">下面是仿 FeralUI 概念的即時漸層——拖動滑桿改變色相、模糊與噪點，感受「把視覺可能性攤開」的體驗。</p>
+  <div class="demo" id="demo"><div class="grad" id="grad"></div><div class="noise" id="noise"></div></div>
+  <div class="controls">
+    <div><label>色相 A</label><input type="range" id="h1" min="0" max="360" value="20"></div>
+    <div><label>色相 B</label><input type="range" id="h2" min="0" max="360" value="255"></div>
+    <div><label>模糊 blur</label><input type="range" id="blur" min="10" max="90" value="55"></div>
+    <div><label>噪點 noise</label><input type="range" id="noise-r" min="0" max="70" value="25"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>不是普通的雙色漸層產生器。FeralUI Gradients 把漸層當成「視覺實驗」，讓形狀、模糊、噪點（noise）與流動（flow）效果都能直接調整並即時預覽。</p>
+  <h2 style="margin-top:20px">主要功能</h2>
+  <ul>
+    <li>內建多種漸層風格可直接套用</li>
+    <li>可調整顏色、柔化（blur）與噪點</li>
+    <li>能加入文字或圖片直接預覽套用效果</li>
+    <li>支援匯出靜態與動態（動畫）效果</li>
+  </ul>
+  <h2 style="margin-top:20px">為什麼好用</h2>
+  <p>很多時候不是「做不出漸層」，而是「不知道怎麼搭才有質感」。這類工具先把視覺可能性攤開，挑好再放回網站或產品裡，比從零慢慢試快很多。適合網頁 Hero 視覺、Banner、簡報底圖等場合。</p>
+</div>
+
+<div class="card">
+  <h2>試用官網</h2>
+  <p class="src">想用真正的 FeralUI 功能（可匯出）請到官網：</p>
+  <a class="btn" href="https://feralui.dev" target="_blank" rel="noopener">開啟 feralui.dev ↗</a>
+</div>
+
+<div class="card">
+  <h2>資料來源</h2>
+  <p class="src">官網：<a href="https://feralui.dev" target="_blank" rel="noopener">feralui.dev</a><br>
+  介紹貼文：Threads @bing_sunzhi（16 萬瀏覽）· 擷取於 2026-07-17</p>
+</div>
+</div>
+<script>
+  const d=document, root=d.getElementById('demo').style;
+  function set(){
+    root.setProperty('--h1',h1.value); root.setProperty('--h2',h2.value);
+    root.setProperty('--h3',(+h1.value+120)%360);
+    root.setProperty('--blur',blur.value+'px'); root.setProperty('--noise',(noiseR.value/100));
+  }
+  const h1=d.getElementById('h1'),h2=d.getElementById('h2'),blur=d.getElementById('blur'),noiseR=d.getElementById('noise-r');
+  [h1,h2,blur,noiseR].forEach(e=>e.addEventListener('input',set)); set();
+</script>
+</body></html>

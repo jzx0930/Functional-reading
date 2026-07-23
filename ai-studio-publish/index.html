@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google AI Studio — 直接發布網站</title>
+<style>
+  :root{--accent:#1a73e8;--bg:#f4f7fb;--card:#fff;--text:#202730;--muted:#79828e;--line:#dde5ef}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#e3edfd;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ol,ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:220px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Google AI Studio — 直接發布網站</h1>
+<div><span class="tag">AI 建站</span><span class="tag">部署</span></div>
+<p class="lead">在 AI Studio 用 Vibe coding 做完網頁後，可直接發布上線並綁自訂網域，不必再靠 Vercel／Netlify。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把螢幕截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾，這裡就會自動顯示</div></div>
+  <a class="btn" href="https://aistudio.google.com" target="_blank" rel="noopener">開啟 Google AI Studio ↗</a>
+</div>
+
+<div class="card">
+  <h2>它解決什麼問題</h2>
+  <p>過去用 AI 生成網頁後，還要另外丟到 Vercel、Netlify 部署。AI Studio 現在能直接把 Vibe coding 做好的網頁一鍵發布上線，減少對其他平台的依賴。</p>
+  <h2 style="margin-top:20px">操作步驟</h2>
+  <ol>
+    <li>在 AI Studio 用 Vibe coding 生成完網站，點右上角 <b>Publish</b>。</li>
+    <li>選 <b>Custom domain</b> 綁自己的網域，或用 <code>ai-studio.app</code> 免費子網域直接上線。</li>
+    <li>按 <b>Deploy</b>，等 1–2 分鐘就能在網路上看到。</li>
+  </ol>
+  <h2 style="margin-top:20px">延伸：Firebase / Cloud Run（多一步）</h2>
+  <ul>
+    <li><b>Firebase Studio / App Builder</b>：Publish → 拿到 firebase.app 網址 → Firebase console → App Hosting → Add custom domain，驗證 DNS 加 A/AAAA。</li>
+    <li><b>Google AI Studio 網站</b>：通常改用 Cloud Run 部署 → Cloud Run → Custom domains 驗證並設定 DNS。</li>
+  </ul>
+  <p class="src">以上延伸步驟出自貼文中 meta.ai 的回覆，實際綁定情況建議自行驗證。</p>
+</div>
+
+<div class="card"><h2>相關</h2>
+  <p class="src">同作者另提到 <b>TypeUI</b>（現成網頁設計風格 skill，讓生成網站少一點 AI 味）。另一種部署路線見 <a href="../ai-site-build-deploy/index.html">ai-site-build-deploy</a>。</p></div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @bboy_anlee · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

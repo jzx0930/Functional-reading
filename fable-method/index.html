@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fable-method</title>
+<style>
+  :root{--accent:#8a5cf6;--bg:#f6f3fc;--card:#fff;--text:#251f33;--muted:#7d7691;--line:#e6e0f4}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#e9e2fb;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .tap{display:flex;gap:10px;justify-content:center;margin-top:8px}
+  .tap span{background:#efe9fb;color:var(--accent);border-radius:10px;padding:10px 18px;font-weight:700}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>fable-method</h1>
+<div><span class="tag">AI Agent Skills</span><span class="tag">工作流方法論</span></div>
+<p class="lead">把 Claude Fable 5 的工作流逆向拆解、蒸餾成任何模型都能安裝執行的 skill，並附一套 eval 保持品質。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <div class="tap"><span>Think</span><span>Act</span><span>Prove</span></div>
+  <a class="btn" href="https://github.com/Sahir619/fable-method" target="_blank" rel="noopener">開啟 GitHub: Sahir619/fable-method ↗</a>
+</div>
+
+<div class="card">
+  <h2>核心概念</h2>
+  <p>大家以為 Fable 5「一氣呵成」是模型多神，但作者把整套工作流逆向拆開，做成一包誰都能裝的 skill——宣稱連弱一點的模型照著跑也能複製那個手感。兩週衝到 1,314 顆星。方法濃縮成三步：<b>Think / Act / Prove</b>，附帶 eval 持續驗證流程是否到位。</p>
+  <p>重點啟示：很多時候「不是模型贏，是流程贏」——把高手動作拆成步驟寫死，換個引擎照樣跑，往往比換更貴的模型划算。</p>
+</div>
+
+<div class="card">
+  <h2>注意事項（留言正反觀點）</h2>
+  <ul>
+    <li>反面：門檻低的東西別人也能靠 try-and-error 最佳化，差異可能還是在模型本身能力。</li>
+    <li>時效性：綁定特定模型的 prompt/skill，模型更新後可能被視為理所當然或被忽略。</li>
+  </ul>
+  <p class="src">建議當成「可攜、可驗證的工作流範本」用。同主題：<a href="../curated-codex-skills/index.html">curated-codex-skills</a>、<a href="../mattpocock-skills/index.html">mattpocock-skills</a>。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/Sahir619/fable-method" target="_blank" rel="noopener">Sahir619/fable-method</a><br>介紹貼文：Threads @leeunhn · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Animata</title>
+<style>
+  :root{--accent:#2f9e8f;--bg:#f2faf8;--card:#fff;--text:#20302d;--muted:#6f8480;--line:#d9ece8}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.8rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#d9f0ec;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* demo */
+  .flip{perspective:1000px;width:200px;height:130px;margin:6px auto}
+  .flip-inner{position:relative;width:100%;height:100%;transition:transform .7s;transform-style:preserve-3d}
+  .flip:hover .flip-inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:#fff}
+  .front{background:linear-gradient(135deg,#2f9e8f,#4dd0b0)}
+  .back{background:linear-gradient(135deg,#20302d,#3a5a52);transform:rotateY(180deg)}
+  .shimmer{margin-top:22px;text-align:center;font-size:1.5rem;font-weight:800;
+    background:linear-gradient(90deg,#20302d 25%,#4dd0b0 50%,#20302d 75%);background-size:200% auto;
+    -webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 3s linear infinite}
+  @keyframes sh{to{background-position:200% center}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Animata</h1>
+<div><span class="tag">UI 元件庫</span><span class="tag">微互動動畫</span></div>
+<p class="lead">專注「精緻微互動」的開源動畫元件庫，把酷炫但難刻的動效整理成可複製的 React 元件。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="src">仿 Animata 概念——把滑鼠移到卡片上會 3D 翻面，下方是流動文字效果：</p>
+  <div class="flip"><div class="flip-inner">
+    <div class="face front">Hover 我</div><div class="face back">✨ 翻面！</div>
+  </div></div>
+  <div class="shimmer">Premium Micro-interactions</div>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>Animata 是一套開源、免費的 React 動畫元件庫，把「看起來很酷炫、但手刻 CSS 與 JavaScript 會花一堆時間」的動態效果組件化，讓你複製貼上、快速客製。</p>
+  <h2 style="margin-top:20px">主要功能</h2>
+  <ul>
+    <li>直接複製程式碼即可用，隨插即用</li>
+    <li>基於 React，深度結合 Tailwind CSS 與 Framer Motion</li>
+    <li>收錄互動卡片、按鈕特效、動態文字、導覽列等</li>
+    <li>完全開源免費，適合快速客製</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>試用官網</h2>
+  <a class="btn" href="https://animata.design" target="_blank" rel="noopener">開啟 animata.design ↗</a>
+</div>
+
+<div class="card">
+  <h2>相關（同類）</h2>
+  <p class="src">React Bits（輕量動畫庫）、anime.js（泛用 JS 動畫引擎，可餵給 Claude Code/Codex）。本站同類：<a href="../amicro/index.html">amicro</a>、<a href="../21st-dev/index.html">21st-dev</a>、<a href="../icon-animator/index.html">icon-animator</a>。</p>
+</div>
+
+<div class="card">
+  <h2>資料來源</h2>
+  <p class="src">官網：<a href="https://animata.design" target="_blank" rel="noopener">animata.design</a><br>
+  介紹貼文：Threads @malilion.dev（1,242 瀏覽）· 擷取於 2026-07-17</p>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>codebase-memory-mcp</title>
+<style>
+  :root{--accent:#2d7d6e;--bg:#f1f8f6;--card:#fff;--text:#1e2c29;--muted:#6f827d;--line:#d7ebe6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#d6ede8;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .stat{flex:1;min-width:120px;background:#eaf6f3;border-radius:12px;padding:14px;text-align:center}
+  .stat b{display:block;font-size:1.5rem;color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>codebase-memory-mcp</h1>
+<div><span class="tag">AI Coding</span><span class="tag">MCP Server</span><span class="tag">程式碼索引</span></div>
+<p class="lead">把整個 codebase 索引成持久化知識圖譜，讓 AI agent 直接查結構，不必每次重讀專案、大幅省 token。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <div class="stats"><div class="stat"><b>158</b>種語言</div><div class="stat"><b>99%</b>更少 token</div><div class="stat"><b>ms</b>級查詢</div></div>
+  <a class="btn" href="https://github.com/DeusData/codebase-memory-mcp" target="_blank" rel="noopener">開啟 GitHub: DeusData/codebase-memory-mcp ↗</a>
+</div>
+
+<div class="card">
+  <h2>它解決什麼問題</h2>
+  <p>AI 很「健忘」：每次改一點就要把整個專案重讀一遍，慢、燒 token、又容易漏掉關聯。codebase-memory-mcp 先幫專案建索引，存成持久化<b>知識圖譜</b>（函式、類別、呼叫鏈、路由、跨服務連結），AI 用圖查詢就能直接看懂結構。</p>
+  <p class="src">重點：它本身不含 LLM，只是結構分析後端；智慧交給連上的 MCP agent，因此不需額外 API key。</p>
+  <h2 style="margin-top:20px">主要特色</h2>
+  <ul>
+    <li>158 種語言（內建 tree-sitter 語法）</li>
+    <li>大型專案建索引快，宣稱省下大量 token</li>
+    <li>免費開源、全程本機執行，程式碼不外流</li>
+    <li>一行指令安裝，支援 Claude Code、Cursor、Codex</li>
+  </ul>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank" rel="noopener">DeusData/codebase-memory-mcp</a><br>介紹貼文：Threads @lawrenceteh_ · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

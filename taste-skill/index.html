@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>taste-skill</title>
+<style>
+  :root{--accent:#c2456a;--bg:#fbf4f6;--card:#fff;--text:#2b2025;--muted:#8a7c81;--line:#eeddE3}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#f7dde5;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  code.cmd{display:block;background:#2b2025;color:#ffd9e4;padding:12px 14px;border-radius:10px;font-size:.9rem;margin-top:8px;overflow:auto}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>taste-skill</h1>
+<div><span class="tag">AI Agent Skill</span><span class="tag">前端設計品味</span></div>
+<p class="lead">專門「矯正 AI 前端審美」的開源 skill，讓 AI 寫出的網頁有高級感、擺脫套版感。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <a class="btn" href="https://github.com/Leonxlnx/taste-skill" target="_blank" rel="noopener">開啟 GitHub: Leonxlnx/taste-skill ↗</a>
+</div>
+
+<div class="card">
+  <h2>它解決什麼問題</h2>
+  <p>每次叫 AI 寫前端，畫面常充滿「無聊的套版感」。taste-skill 給 AI 注入一套設計品味規則，矯正審美，讓生成的網頁更有「呼吸感」與高級感——你負責把關品味，AI 做粗活。GitHub 破 6 萬星。</p>
+  <h2 style="margin-top:20px">安裝（留言提供）</h2>
+  <code class="cmd">npx skills add Leonxlnx/taste-skill</code>
+  <p class="src" style="margin-top:8px">之後直接請 agent「做一個漂亮的網頁」即可，skill 會在背景套用品味規則。可搭配 Claude Code、Codex、Cursor。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/Leonxlnx/taste-skill" target="_blank" rel="noopener">Leonxlnx/taste-skill</a><br>介紹貼文：Threads @darks0603 · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

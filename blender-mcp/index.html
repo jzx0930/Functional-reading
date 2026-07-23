@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blender MCP</title>
+<style>
+  :root{--accent:#e8802a;--bg:#faf6f0;--card:#fff;--text:#2b2519;--muted:#8a8075;--line:#eee2d0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#f7e6d0;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .bal{background:#fff6ec;border-left:3px solid var(--accent);padding:12px 14px;border-radius:8px;margin:10px 0}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Blender MCP</h1>
+<div><span class="tag">AI × 3D</span><span class="tag">MCP Server</span></div>
+<p class="lead">透過 MCP 讓 AI 模型（如 GPT-5.6 Sol、Claude）直接操控 Blender 進行 3D 建模與渲染。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <a class="btn" href="https://github.com/ahujasid/blender-mcp" target="_blank" rel="noopener">開啟 GitHub: ahujasid/blender-mcp ↗</a>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>把 Blender 接上 MCP（Model Context Protocol）的伺服器，讓支援 MCP 的 AI agent 能直接下指令操控 Blender：建立／調整模型、佈場景、設鏡頭與材質、觸發渲染等。貼文示範用 GPT-5.6 Sol 調用 Blender MCP 自動完成 3D 場景。</p>
+</div>
+
+<div class="card">
+  <h2>能做 / 目前限制（社群觀點）</h2>
+  <div class="bal"><b>看好：</b>真正的專家已把 AI 融入工作流，用它加速粗活。</div>
+  <div class="bal"><b>保留：</b>目前 AI 生成常是「調用現成素材」擺設渲染；在正確拓撲、佈線、UV 拆解、拔模／公差／組裝順序等「可生產」細節仍不足，生成檔案未必能直接用於製造。</div>
+  <p class="src">結論傾向：AI 是強力輔助，但「只能看不能用」的產出對生產端意義有限；短期較難取代真正掌握 Blender 的人。可對照 <a href="../ghostpoly-ai/index.html">GhostPoly AI</a>（主打補上結構化、可生產這塊）。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">開源實作：<a href="https://github.com/ahujasid/blender-mcp" target="_blank" rel="noopener">ahujasid/blender-mcp</a><br>介紹貼文：Threads @kikitataysi · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

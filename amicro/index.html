@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amicro</title>
+<style>
+  :root{--accent:#e0567a;--bg:#fbf6f7;--card:#fff;--text:#2b2226;--muted:#8a7d82;--line:#efe0e5}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.8rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#fbe4ea;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* demo */
+  .demo-row{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
+  .mi{flex:1;min-width:150px;text-align:center;border:1px solid var(--line);border-radius:12px;padding:22px 12px}
+  .mi p{font-size:.82rem;color:var(--muted);margin:12px 0 0}
+  .fill{position:relative;overflow:hidden;background:#fff;border:2px solid var(--accent);color:var(--accent);padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer;transition:color .3s}
+  .fill::before{content:"";position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s;z-index:-1}
+  .fill:hover{color:#fff}.fill:hover::before{transform:scaleX(1)}.fill span{position:relative}
+  .del{background:#fff;border:2px solid #e0567a;color:#e0567a;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer}
+  .del.shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .refresh{background:var(--accent);color:#fff;border:none;width:46px;height:46px;border-radius:50%;font-size:1.2rem;cursor:pointer}
+  .refresh.spin{animation:spin .6s ease}@keyframes spin{to{transform:rotate(360deg)}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Amicro</h1>
+<div><span class="tag">UI 元件庫</span><span class="tag">微互動</span></div>
+<p class="lead">給 React 專案的高質感微互動元件庫，讓產品「摸起來」更有質感。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="src">仿 Amicro 概念的幾個微互動——把滑鼠移上去、點點看：</p>
+  <div class="demo-row">
+    <div class="mi"><button class="fill"><span>Hover 我</span></button><p>按鈕填色</p></div>
+    <div class="mi"><button class="del" onclick="this.classList.remove('shake');void this.offsetWidth;this.classList.add('shake')">刪除</button><p>刪除震動回饋</p></div>
+    <div class="mi"><button class="refresh" onclick="this.classList.remove('spin');void this.offsetWidth;this.classList.add('spin')">⟳</button><p>重整旋轉</p></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>Amicro（Premium React Micro-transitions &amp; Interaction Components）是一套 React 微互動元件庫，把常見但「自己刻很煩」的互動細節整理成即用元件：按鈕 hover、icon 變形、狀態切換、刪除震動、重整旋轉等。</p>
+  <h2 style="margin-top:20px">主要特色</h2>
+  <ul>
+    <li>適合想讓網站更精緻、又不想從零刻動畫的人</li>
+    <li>對 landing page、SaaS 產品、AI 工具介面都實用</li>
+    <li>重點不是炫技，而是靠互動細節堆出「高級感」與良好手感</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>試用官網</h2>
+  <a class="btn" href="https://amicro.vercel.app" target="_blank" rel="noopener">開啟 amicro.vercel.app ↗</a>
+</div>
+
+<div class="card">
+  <h2>相關</h2>
+  <p class="src">同類前端質感工具：<a href="../icon-animator/index.html">icon-animator</a>、<a href="../21st-dev/index.html">21st-dev</a>、<a href="../animata/index.html">animata</a>、<a href="../feralui-gradients/index.html">feralui-gradients</a>。</p>
+</div>
+
+<div class="card">
+  <h2>資料來源</h2>
+  <p class="src">官網：<a href="https://amicro.vercel.app" target="_blank" rel="noopener">amicro.vercel.app</a><br>
+  介紹貼文：Threads @bing_sunzhi（8,502 瀏覽）· 擷取於 2026-07-17</p>
+</div>
+</div>
+</body></html>

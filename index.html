@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>工具閱讀總覽 · Functional Reading</title>
+<style>
+  :root{--accent:#c2703d;--bg:#faf6f1;--card:#fff;--text:#2b2622;--muted:#8a8078;--line:#e8ddd2}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:1000px;margin:0 auto;padding:36px 20px 70px}
+  header h1{font-size:2rem;margin:0 0 6px}
+  header p{color:var(--muted);margin:0 0 20px}
+  .search{width:100%;max-width:360px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;font-size:1rem;margin-bottom:8px;background:#fff}
+  .count{color:var(--muted);font-size:.85rem;margin-bottom:18px}
+  h2.sec{font-size:1.1rem;margin:28px 0 12px;display:flex;align-items:center;gap:9px}
+  h2.sec::before{content:"";width:8px;height:20px;background:var(--accent);border-radius:3px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  a.tool{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:transform .15s,box-shadow .15s}
+  a.tool:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.08)}
+  .tool .ico{font-size:1.5rem}
+  .tool .nm{font-weight:700;margin:8px 0 4px;font-size:1.05rem}
+  .tool .ds{color:var(--muted);font-size:.86rem}
+  .tool .tg{display:inline-block;margin-top:10px;background:#f2e7dc;color:var(--accent);font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:20px}
+  .demo-badge{display:inline-block;margin-top:10px;margin-left:6px;background:#e4f3e9;color:#3f8f5b;font-size:.72rem;font-weight:600;padding:2px 9px;border-radius:20px}
+  footer{margin-top:40px;color:var(--muted);font-size:.85rem;text-align:center}
+</style></head>
+<body><div class="wrap">
+<header>
+  <h1>🧰 工具閱讀總覽</h1>
+  <p>把 list.txt 收集的網路工具，逐則讀懂後整理成說明頁。點卡片看詳細功能與展示。</p>
+  <input class="search" id="q" placeholder="🔍 搜尋工具名稱或關鍵字…">
+  <div class="count" id="count"></div>
+</header>
+
+<h2 class="sec">前端 UI / 動效元件</h2>
+<div class="grid" data-sec>
+  <a class="tool" href="21st-dev/index.html" data-k="21st ui 元件 市集"><div class="ico">🧩</div><div class="nm">21st.dev</div><div class="ds">現代化 UI 元件開源市集，複製即用</div><span class="tg">UI 市集</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="amicro/index.html" data-k="amicro 微互動 react"><div class="ico">✨</div><div class="nm">Amicro</div><div class="ds">React 微互動元件庫，讓產品更有質感</div><span class="tg">微互動</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="animata/index.html" data-k="animata 動畫 react"><div class="ico">🎞️</div><div class="nm">Animata</div><div class="ds">精緻微互動開源動畫元件庫</div><span class="tg">動畫元件</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="icon-animator/index.html" data-k="icon animator 動畫"><div class="ico">🔔</div><div class="nm">Icon Animator</div><div class="ds">把靜態 icon 做出動態感</div><span class="tg">icon 動畫</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="feralui-gradients/index.html" data-k="feralui 漸層 gradient"><div class="ico">🌈</div><div class="nm">FeralUI Gradients</div><div class="ds">可調形狀模糊噪點的進階漸層工具</div><span class="tg">漸層</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="thinking-orbs/index.html" data-k="thinking orbs ai 思考"><div class="ico">🔮</div><div class="nm">Thinking Orbs</div><div class="ds">「AI 正在思考」動態球體元件</div><span class="tg">AI 動效</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="scroll-world/index.html" data-k="scroll world 捲動 視差"><div class="ico">📜</div><div class="nm">scroll-world</div><div class="ds">捲動驅動的視差／場景效果</div><span class="tg">捲動視差</span><span class="demo-badge">互動</span></a>
+</div>
+
+<h2 class="sec">AI × 3D / 創意網頁</h2>
+<div class="grid" data-sec>
+  <a class="tool" href="blender-mcp/index.html" data-k="blender mcp 3d"><div class="ico">🧊</div><div class="nm">Blender MCP</div><div class="ds">AI 直接操控 Blender 建模渲染</div><span class="tg">AI × 3D</span></a>
+  <a class="tool" href="ghostpoly-ai/index.html" data-k="ghostpoly 3d low poly"><div class="ico">👾</div><div class="nm">GhostPoly AI</div><div class="ds">AI low-poly 建模＋綁定，可進生產</div><span class="tg">遊戲 3D</span></a>
+  <a class="tool" href="nature-web-threejs-gsap/index.html" data-k="nature threejs gsap 自然"><div class="ico">🌿</div><div class="nm">自然感網頁案例</div><div class="ds">Three.js + GSAP 打造療癒感網頁</div><span class="tg">Three.js</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="paper-roll-threejs/index.html" data-k="paper roll threejs fable 紙帶"><div class="ico">🧻</div><div class="nm">無限紙帶網頁</div><div class="ds">Fable 5 生成的 Three.js 紙帶動畫</div><span class="tg">Three.js</span><span class="demo-badge">互動</span></a>
+  <a class="tool" href="higgsfield-mcp/index.html" data-k="higgsfield mcp 影片 影像"><div class="ico">🎬</div><div class="nm">Higgsfield MCP</div><div class="ds">AI agent 調用影像／影片生成</div><span class="tg">影像生成</span></a>
+</div>
+
+<h2 class="sec">AI Coding / Agent / Skills</h2>
+<div class="grid" data-sec>
+  <a class="tool" href="codebase-memory-mcp/index.html" data-k="codebase memory mcp 索引 token"><div class="ico">🧠</div><div class="nm">codebase-memory-mcp</div><div class="ds">把程式碼索引成知識圖譜，省 token</div><span class="tg">MCP</span></a>
+  <a class="tool" href="curated-codex-skills/index.html" data-k="curated codex skills 工作流"><div class="ico">🛠️</div><div class="nm">curated-codex-skills</div><div class="ds">精選 Codex skills 與工作流</div><span class="tg">Skills</span></a>
+  <a class="tool" href="mattpocock-skills/index.html" data-k="mattpocock skills"><div class="ico">📦</div><div class="nm">mattpocock/skills</div><div class="ds">工程／生產力 agent skills 工作流</div><span class="tg">Skills</span></a>
+  <a class="tool" href="fable-method/index.html" data-k="fable method think act prove"><div class="ico">🪄</div><div class="nm">fable-method</div><div class="ds">把 Fable 5 工作流蒸餾成任何模型能跑</div><span class="tg">方法論</span></a>
+  <a class="tool" href="taste-skill/index.html" data-k="taste skill 前端 審美 品味"><div class="ico">🎨</div><div class="nm">taste-skill</div><div class="ds">矯正 AI 前端審美的開源 skill</div><span class="tg">設計品味</span></a>
+  <a class="tool" href="claude-code-ios-simulator/index.html" data-k="claude code ios simulator"><div class="ico">📱</div><div class="nm">Claude Code iOS Simulator</div><div class="ds">AI 自己跑 App、操作、看畫面驗證</div><span class="tg">iOS 開發</span></a>
+  <a class="tool" href="poolside-laguna/index.html" data-k="poolside laguna 開源 模型"><div class="ico">🌊</div><div class="nm">Poolside Laguna S 2.1</div><div class="ds">開源 118B 寫程式模型，可本機跑</div><span class="tg">AI 模型</span></a>
+  <a class="tool" href="runcat-neo/index.html" data-k="runcat neo mac 用量 貓"><div class="ico">🐈</div><div class="nm">RunCat Neo</div><div class="ds">選單列跑貓，顯示 Claude Code 用量</div><span class="tg">macOS</span><span class="demo-badge">互動</span></a>
+</div>
+
+<h2 class="sec">建站 / 部署 / 資源</h2>
+<div class="grid" data-sec>
+  <a class="tool" href="ai-studio-publish/index.html" data-k="ai studio publish 發布 網站"><div class="ico">🚀</div><div class="nm">AI Studio 發布網站</div><div class="ds">Vibe coding 後直接發布並綁網域</div><span class="tg">建站</span></a>
+  <a class="tool" href="ai-site-build-deploy/index.html" data-k="自架 網站 部署 seo vercel cloudflare"><div class="ico">🗺️</div><div class="nm">AI 自架網站流程</div><div class="ds">Codex→GitHub→Vercel→Cloudflare＋SEO</div><span class="tg">工作流</span></a>
+  <a class="tool" href="awesome-list/index.html" data-k="awesome sindresorhus 資源 索引"><div class="ico">⭐</div><div class="nm">awesome</div><div class="ds">開源世界的終極資源藏寶圖</div><span class="tg">資源索引</span></a>
+</div>
+
+<footer id="empty" style="display:none">找不到符合的工具</footer>
+<footer>共 23 個工具 · 資料整理自各 Threads 貼文與 GitHub · 每頁附詳細說明與展示</footer>
+</div>
+<script>
+  const q=document.getElementById('q'),cards=[...document.querySelectorAll('.tool')],count=document.getElementById('count'),empty=document.getElementById('empty');
+  function upd(){
+    const v=q.value.trim().toLowerCase();let n=0;
+    cards.forEach(c=>{const hit=!v||c.dataset.k.includes(v)||c.textContent.toLowerCase().includes(v);c.style.display=hit?'':'none';if(hit)n++;});
+    document.querySelectorAll('[data-sec]').forEach(sec=>{
+      const any=[...sec.querySelectorAll('.tool')].some(c=>c.style.display!=='none');
+      sec.style.display=any?'':'none'; sec.previousElementSibling.style.display=any?'':'none';
+    });
+    count.textContent=v?`符合 ${n} 個`:`共 ${cards.length} 個工具`; empty.style.display=n?'none':'block';
+  }
+  q.addEventListener('input',upd); upd();
+</script>
+</body></html>

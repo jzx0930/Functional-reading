@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scroll-world</title>
+<style>
+  :root{--accent:#3b7dd8;--bg:#f3f7fc;--card:#fff;--text:#1f2733;--muted:#77828f;--line:#dde6f1}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.8rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#dbe8fb;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* demo：捲動視差 */
+  .scene{height:260px;overflow-y:scroll;border-radius:14px;position:relative;background:linear-gradient(#bcd7f5,#eaf3ff);scroll-behavior:smooth}
+  .layer{position:sticky;top:0;height:0}
+  .sun{position:sticky;top:20px;left:70%;width:60px;height:60px;border-radius:50%;background:#ffd66b;box-shadow:0 0 40px #ffd66b;margin-left:auto;margin-right:30px}
+  .content{padding:40px 20px 260px;position:relative;z-index:2}
+  .content h3{font-size:1.4rem;margin:80px 0 8px}
+  .content p{color:#3a4759}
+  .hill{position:sticky;bottom:0;height:90px;background:radial-gradient(120% 90px at 50% 100%,#5b8f5b,transparent);z-index:1}
+  .hint{font-size:.82rem;color:var(--muted);margin:6px 0 0}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>scroll-world</h1>
+<div><span class="tag">前端 skill</span><span class="tag">捲動視差</span></div>
+<p class="lead">用捲動驅動的視差／場景切換效果，讓網頁隨著滑動說故事。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="hint">在下面的框內往下捲動 ↓ 太陽與遠景會以不同速度移動（視差）：</p>
+  <div class="scene">
+    <div class="sun"></div>
+    <div class="content">
+      <h3>往下捲動看看</h3><p>前景文字快、太陽慢、遠山黏在底部——就是視差的基本概念。</p>
+      <h3>第二段</h3><p>scroll-world 這類 skill 幫你把捲動與動畫綁在一起。</p>
+      <h3>第三段</h3><p>常用於作品集、產品故事頁、活動網站。</p>
+    </div>
+    <div class="hill"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>scroll-world 是一個做「捲動世界」的前端 skill／專案——把捲動位置對應到場景動畫，做出視差、元素進場、鏡頭推移等效果。</p>
+  <h2 style="margin-top:20px">適用情境</h2>
+  <ul><li>作品集、品牌故事頁</li><li>產品發表、活動 landing page</li><li>任何想用「滑動」帶節奏的網頁</li></ul>
+</div>
+
+<div class="card">
+  <h2>原始碼</h2>
+  <a class="btn" href="https://github.com/oso95/scroll-world" target="_blank" rel="noopener">GitHub: oso95/scroll-world ↗</a>
+</div>
+
+<div class="card">
+  <h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/oso95/scroll-world" target="_blank" rel="noopener">github.com/oso95/scroll-world</a> · 擷取於 2026-07-17</p>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 自架網站 + 部署 + SEO 流程</title>
+<style>
+  :root{--accent:#0f9d8c;--bg:#f1faf8;--card:#fff;--text:#1e2c2a;--muted:#6f827e;--line:#d7ebe7}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.6rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#d6efeb;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  ol,ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* 流程圖 */
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+  .step{background:#e8f6f3;border:1px solid #bfe4dd;color:#0c7d70;border-radius:10px;padding:9px 13px;font-weight:600;font-size:.9rem}
+  .arrow{color:var(--accent);font-weight:700}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}th{background:#eaf6f3}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>AI 自架網站 + 部署 + SEO 流程</h1>
+<div><span class="tag">工作流</span><span class="tag">方法</span></div>
+<p class="lead">用訂閱制 AI（Codex／Claude Code）自己做出產品網站，串接 GitHub + Vercel + Cloudflare 自動部署，再用 SEO 帶自然流量。</p>
+
+<div class="card">
+  <h2>整體流程</h2>
+  <div class="flow">
+    <span class="step">Codex / Claude Code 做站</span><span class="arrow">→</span>
+    <span class="step">GitHub 存碼</span><span class="arrow">→</span>
+    <span class="step">Vercel 自動部署</span><span class="arrow">→</span>
+    <span class="step">Cloudflare 網域 + DNS</span>
+  </div>
+  <ol>
+    <li>請 <b>Codex／Claude Code</b> 幫你做網站，跟它討論想要的樣子。</li>
+    <li>申請 <b>GitHub</b>，讓 AI 幫你把程式碼同步上去。</li>
+    <li>申請 <b>Vercel</b>，綁定 GitHub 專案，一有改動就自動重新部署。</li>
+    <li>買網域（作者用 <b>Cloudflare</b>，便宜好用）。</li>
+    <li>在 Vercel 加自訂網域、設定 DNS（較複雜，可請 AI 協助）。</li>
+  </ol>
+  <p class="src">懶人合併版：直接跟 AI 說「我有 XXX 產品，想做產品行銷網站，不需後台，需串接 GitHub、Vercel 自動部署」，剩下反覆討論到順眼。</p>
+</div>
+
+<div class="card">
+  <h2>觀念：三層架構（別把 GitHub Pages 跟 Cloudflare 搞混）</h2>
+  <ul>
+    <li><b>GitHub（repo）</b>：存原始碼</li>
+    <li><b>網站主機（GitHub Pages 或 Vercel）</b>：把程式碼變成能打開的網站</li>
+    <li><b>Cloudflare</b>：買網域＋管 DNS</li>
+  </ul>
+  <p>真正「二選一」的是 GitHub Pages vs Vercel（誰當主機）；Cloudflare 是網域層，兩種主機都能掛。</p>
+  <table>
+    <tr><th></th><th>GitHub Pages</th><th>Vercel</th></tr>
+    <tr><td>適合</td><td>純靜態</td><td>靜態 + 動態(SSR/serverless)</td></tr>
+    <tr><td>自動部署</td><td>可（Actions）</td><td>原生，含 preview</td></tr>
+    <tr><td>商業用途</td><td>可</td><td>免費 Hobby 僅限非商業</td></tr>
+    <tr><td>費用</td><td>免費</td><td>有免費額度</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>SEO：帶自然流量</h2>
+  <ol>
+    <li>設定與尋找關鍵字（含長尾）。</li>
+    <li>用關鍵字請 AI 寫對應文章。</li>
+    <li>文章一定要「去 AI 化」：作者推薦工具 <b>better-writing</b>。</li>
+    <li>把 sitemap 交給 Google Search Console，依錯誤調整。</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h2>注意事項（留言）</h2>
+  <p>最容易卡「網域」那步：Cloudflare 改了 DNS，但 Vercel 沒抓到正確 CNAME，會一直 pending；要回 Vercel 重新驗證一次。此坑無論主機選誰、只要用自訂網域都可能遇到。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @linyh98 · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

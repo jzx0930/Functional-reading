@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Code — iOS Simulator</title>
+<style>
+  :root{--accent:#d97757;--bg:#faf6f3;--card:#fff;--text:#2b2320;--muted:#8a7f78;--line:#eee1da}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.6rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#f5e2da;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+  .step{background:#f6e7e0;border:1px solid #ecccbe;color:#b45c3e;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.88rem}
+  .arrow{color:var(--accent);font-weight:700}
+  .warn{background:#fff4ef;border-left:3px solid var(--accent);padding:12px 14px;border-radius:8px;margin:10px 0}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Claude Code — iOS Simulator（公開測試版）</h1>
+<div><span class="tag">AI Coding</span><span class="tag">iOS 開發</span><span class="tag">官方功能</span></div>
+<p class="lead">Claude Code Desktop 整合 iOS 模擬器，讓 AI 自己建置、啟動、操作 App 並讀畫面驗證，發現 Bug 後繼續迭代。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+</div>
+
+<div class="card">
+  <h2>工作流的進化</h2>
+  <div class="flow">
+    <span class="step">寫程式</span><span class="arrow">→</span><span class="step">執行</span><span class="arrow">→</span>
+    <span class="step">操作</span><span class="arrow">→</span><span class="step">讀畫面驗證</span><span class="arrow">→</span><span class="step">修正</span>
+  </div>
+  <p>給一句「把 App 跑起來，測試整個註冊流程」，Claude 可以：編譯並安裝 App、在模擬器啟動、點擊滑動操作、讀畫面確認結果、發現 Bug 繼續迭代。模擬器就出現在對話旁，開發者也能隨時接手。補上了 AI 寫完程式後的<b>視覺驗證</b>這一塊。</p>
+</div>
+
+<div class="card">
+  <h2>限制與注意事項</h2>
+  <ul>
+    <li>目前僅支援 <b>macOS</b>，需安裝 <b>Xcode</b>（含 iOS 平台），使用本機工作階段。</li>
+  </ul>
+  <div class="warn"><b>隱私：</b>Claude 操作模擬器取得的截圖會傳送至 Anthropic，測試時建議不要登入真實帳號。</div>
+  <p class="src">留言務實提醒：不能完全取代真機測試；上架仍要面對 App Store 真人測試與送審流程。Android 模擬器據傳仍在準備中。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @aiposthub（3.7 萬瀏覽）· 留言引用 MacRumors · 擷取於 2026-07-17</p></div>
+</div>
+</body></html>

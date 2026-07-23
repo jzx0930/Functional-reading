@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自然感網頁（Three.js + GSAP 案例）</title>
+<style>
+  :root{--accent:#5a9e5a;--bg:#f2f8f0;--card:#fff;--text:#22301f;--muted:#6f8069;--line:#dcebd6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#dcecd5;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .leaf-stage{height:280px;border-radius:14px;overflow:hidden;position:relative;background:linear-gradient(#eaf6e6,#d4ebcb)}
+  .leaf-stage canvas{width:100%;height:100%;display:block}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>自然感網頁體驗（Three.js + GSAP 案例）</h1>
+<div><span class="tag">前端案例</span><span class="tag">技術組合</span></div>
+<p class="lead">把大自然放進網頁的互動視覺案例，示範用 Three.js + GSAP + AI 生成打造有機、療癒感的網頁。</p>
+
+<div class="card">
+  <h2>效果示範</h2>
+  <p class="src">仿「把瀏覽器變成小溫室」的概念——飄落的葉片，滑鼠移到畫面上會讓葉子散開：</p>
+  <div class="leaf-stage"><canvas id="c"></canvas></div>
+</div>
+
+<div class="card">
+  <h2>技術組合</h2>
+  <ul>
+    <li><strong>Three.js</strong> — 3D 場景與粒子、葉片等有機元素的即時渲染</li>
+    <li><strong>GSAP</strong> — 捲動與互動動畫（timeline、ScrollTrigger）</li>
+    <li><strong>GPT 5.6 Sol</strong> — 協助生成／編寫程式與素材（Vibe coding）</li>
+  </ul>
+  <p>作者理念是「設計裡需要更多自然」，成品像把瀏覽器變成一座小溫室，滑鼠滑過會有葉片散開又聚合的互動。</p>
+</div>
+
+<div class="card">
+  <h2>Demo（作者提供）</h2>
+  <a class="btn" href="https://quietude-rho.vercel.app" target="_blank" rel="noopener">開啟 quietude-rho.vercel.app ↗</a>
+  <p class="src" style="margin-top:8px">屬第三方連結，開啟前請留意。</p>
+</div>
+
+<div class="card">
+  <h2>相關</h2>
+  <p class="src">同屬「AI 一次生成的 Three.js 創意網頁」案例：<a href="../paper-roll-threejs/index.html">paper-roll-threejs</a>。</p>
+</div>
+
+<div class="card">
+  <h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @kaolti · 擷取於 2026-07-17</p>
+</div>
+</div>
+<script>
+  const cv=document.getElementById('c'),x=cv.getContext('2d');
+  function size(){cv.width=cv.clientWidth;cv.height=cv.clientHeight}size();addEventListener('resize',size);
+  const N=40,leaves=[],mx={x:-999,y:-999};
+  for(let i=0;i<N;i++)leaves.push({x:Math.random()*cv.width,y:Math.random()*cv.height,s:6+Math.random()*10,vy:.4+Math.random()*.9,a:Math.random()*6,va:(-.5+Math.random())*.05,hue:90+Math.random()*40});
+  cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mx.x=e.clientX-r.left;mx.y=e.clientY-r.top;});
+  cv.addEventListener('mouseleave',()=>{mx.x=mx.y=-999});
+  (function loop(){
+    x.clearRect(0,0,cv.width,cv.height);
+    leaves.forEach(l=>{
+      const dx=l.x-mx.x,dy=l.y-mx.y,d=Math.hypot(dx,dy);
+      if(d<70){l.x+=dx/d*4;l.y+=dy/d*4;}
+      l.y+=l.vy;l.a+=l.va;l.x+=Math.sin(l.y*0.02)*0.6;
+      if(l.y>cv.height+12){l.y=-12;l.x=Math.random()*cv.width;}
+      x.save();x.translate(l.x,l.y);x.rotate(l.a);
+      x.fillStyle=`hsl(${l.hue} 45% 45%)`;
+      x.beginPath();x.ellipse(0,0,l.s,l.s/2,0,0,7);x.fill();
+      x.restore();
+    });
+    requestAnimationFrame(loop);
+  })();
+</script>
+</body></html>
