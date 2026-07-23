@@ -1,5 +1,7 @@
 # Functional Reading
 
+> 🌐 **[👉 開啟線上總覽網站（GitHub Pages）](https://jzx0930.github.io/Functional-reading/)** — 卡片牆＋每個工具的互動說明頁
+
 閱讀網路上的各種工具，整理、實測並用自己的話說明。這個資料夾用來存放這些工具的筆記與相關檔案。
 
 ## 用途

@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/higgsfield-mcp/index.html)**
+
 # Higgsfield MCP
 
 - 官網：https://higgsfield.ai

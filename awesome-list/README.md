@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/awesome-list/index.html)**
+
 # awesome（sindresorhus/awesome）
 
 - 連結：https://github.com/sindresorhus/awesome

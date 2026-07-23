@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/ghostpoly-ai/index.html)**
+
 # GhostPoly AI
 
 - 連結：https://ghostpoly.com （官網／候補名單；以貼文帳號 [@ghostpolyjs](https://www.threads.com/@ghostpolyjs) 為準）

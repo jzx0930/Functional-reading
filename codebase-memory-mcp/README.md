@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/codebase-memory-mcp/index.html)**
+
 # codebase-memory-mcp
 
 - 連結：https://github.com/DeusData/codebase-memory-mcp

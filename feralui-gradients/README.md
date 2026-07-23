@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/feralui-gradients/index.html)**
+
 # FeralUI Gradients
 
 - 連結：https://feralui.dev

@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/nature-web-threejs-gsap/index.html)**
+
 # 自然感網頁體驗（Three.js + GSAP + GPT 5.6 案例）
 
 - 分類：前端案例 / 技術組合（非單一工具）

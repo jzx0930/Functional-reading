@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/animata/index.html)**
+
 # Animata
 
 - 連結：https://animata.design

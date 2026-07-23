@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/taste-skill/index.html)**
+
 # taste-skill
 
 - 連結：https://github.com/Leonxlnx/taste-skill

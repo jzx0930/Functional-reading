@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/poolside-laguna/index.html)**
+
 # Poolside — Laguna S 2.1（開源寫程式模型）
 
 - 分類：AI 模型 / open-weight / Coding

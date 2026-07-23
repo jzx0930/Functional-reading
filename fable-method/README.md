@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/fable-method/index.html)**
+
 # fable-method
 
 - 連結：https://github.com/Sahir619/fable-method

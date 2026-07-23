@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/paper-roll-threejs/index.html)**
+
 # 無限紙帶網頁（Three.js + Fable 5 案例）
 
 - 分類：前端案例 / 創意互動（非工具）

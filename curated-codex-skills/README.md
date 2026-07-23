@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/curated-codex-skills/index.html)**
+
 # curated-codex-skills
 
 - 連結：https://github.com/George930502/curated-codex-skills

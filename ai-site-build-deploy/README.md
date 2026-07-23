@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/ai-site-build-deploy/index.html)**
+
 # AI 自架網站 + 部署 + SEO 流程
 
 - 分類：工作流 / 方法（非單一工具）

@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/icon-animator/index.html)**
+
 # Icon Animator
 
 - 連結：https://iconanimator.app

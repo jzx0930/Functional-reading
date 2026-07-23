@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/ai-studio-publish/index.html)**
+
 # Google AI Studio — 直接發布網站
 
 - 分類：AI 建站 / 部署（Vibe coding）

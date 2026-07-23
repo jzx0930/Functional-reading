@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/blender-mcp/index.html)**
+
 # Blender MCP
 
 - 分類：AI × 3D / MCP Server

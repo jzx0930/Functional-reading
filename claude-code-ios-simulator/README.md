@@ -1,3 +1,5 @@
+> 📄 **[👉 開啟互動說明頁（index.html）](https://jzx0930.github.io/Functional-reading/claude-code-ios-simulator/index.html)**
+
 # Claude Code — iOS Simulator（公開測試版）
 
 - 分類：AI Coding / iOS 開發 / 官方功能
