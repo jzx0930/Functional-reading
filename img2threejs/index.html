@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>img2threejs</title>
+<style>
+  :root{--accent:#4a63d8;--bg:#f3f4fb;--card:#fff;--text:#22243a;--muted:#7a7d95;--line:#e0e2f0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#e2e5f8;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ol,ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+  .step{background:#e5e8f8;border:1px solid #c8cdf0;color:#3a49b8;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.86rem}
+  .arrow{color:var(--accent);font-weight:700}
+  blockquote{margin:8px 0;padding:10px 14px;background:#eef0fb;border-left:3px solid var(--accent);border-radius:8px;color:#333}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>img2threejs</h1>
+<div><span class="tag">AI × 3D</span><span class="tag">Three.js</span><span class="tag">image-to-3D</span></div>
+<p class="lead">把一張參考圖重建成純程式碼、程序化、可直接動畫的 Three.js 模型；主打 token 高效的 image-to-3D。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <a class="btn" href="https://github.com/img2threejs/img2threejs" target="_blank" rel="noopener">開啟 GitHub: img2threejs ↗</a>
+</div>
+
+<div class="card">
+  <h2>流程</h2>
+  <div class="flow">
+    <span class="step">2D 圖像</span><span class="arrow">→</span>
+    <span class="step">結構分析</span><span class="arrow">→</span>
+    <span class="step">Three.js 程序化模型</span><span class="arrow">→</span>
+    <span class="step">瀏覽器即時互動</span>
+  </div>
+  <p>接上 Codex 5.6（或類似 agent）後，一張參考圖就能跑通這條流程。</p>
+  <ol>
+    <li><b>意圖識別</b>：一張圖，精準捕捉 3D 對象的形態與細節意圖。</li>
+    <li><b>代碼化身</b>：把意圖轉成可編輯、可動畫的 Three.js 程式碼，告別傳統建模。</li>
+    <li><b>動畫就緒</b>：模型自帶運行時層級，直接用於遊戲、XR，實現「圖像 → 可動資產」閉環。</li>
+  </ol>
+  <p class="src">亮點不是「圖生模型」，而是<b>圖生程式碼</b>——產出可讀可改的 code，不是黑盒 mesh。安裝：直接讓 Codex 安裝就能用。</p>
+</div>
+
+<div class="card">
+  <h2>相關提示（留言）</h2>
+  <p class="src">有人分享一個把場景圖還原成可環繞 3D 展示頁的 Codex 提示：</p>
+  <blockquote>用 Three.js 建立逼真還原圖片中場景的完整可環繞 3D 精美展示頁，你可用 ImageGen 生成任何必要素材，直至達到無可挑剔可以公開發佈的水平。</blockquote>
+  <p class="src">觀察：加入「可公開發佈」幾個字，Codex 似乎更重視程式品質與完成度。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/img2threejs/img2threejs" target="_blank" rel="noopener">img2threejs/img2threejs</a><br>介紹貼文：Threads @shawn.cccc · 擷取於 2026-07-23</p></div>
+</div>
+</body></html>
