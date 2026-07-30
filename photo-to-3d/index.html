@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>照片轉 3D · Photo to 3D</title>
+<style>
+  :root{--accent:#4a63d8;--bg:#f4f5fb;--card:#fff;--text:#22243a;--muted:#7a7d95;--line:#e0e2f0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:1.5rem;margin:.2em 0}
+  .sub{color:var(--muted);font-size:.95rem;margin:0 0 16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 18px;align-items:end}
+  label{font-size:13px;color:var(--text);font-weight:600;display:block;margin-bottom:5px}
+  input[type=range]{width:100%}
+  .file{grid-column:1/-1}
+  input[type=file]{width:100%;font-size:.9rem}
+  .row{display:flex;align-items:center;gap:8px}
+  .row label{margin:0;font-weight:500;color:var(--text)}
+  select,button{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:#fff;cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
+  #stage{width:100%;height:460px;background:#0d0b18;border-radius:14px;overflow:hidden;position:relative;touch-action:none}
+  #stage canvas{display:block}
+  #hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a86a6;font-size:.95rem;text-align:center;padding:20px}
+  #status{position:absolute;left:12px;bottom:10px;color:#cfc9e6;font-size:.82rem;background:rgba(0,0,0,.35);padding:4px 10px;border-radius:8px;display:none}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .note{font-size:.85rem;color:var(--muted);margin-top:14px;line-height:1.7}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{border:none;border-radius:0;background:#fff;padding:9px 14px}
+  .seg button.on{background:var(--accent);color:#fff}
+</style></head>
+<body><div class="wrap">
+<h1>📷 → 🧊 照片轉 3D</h1>
+<p class="sub">上傳一張照片，即時生成可旋轉的立體。拖曳旋轉、滾輪縮放。可匯出 .obj 3D 模型檔。</p>
+
+<div class="panel">
+  <div class="file">
+    <label>選擇照片</label>
+    <input type="file" id="file" accept="image/*">
+  </div>
+
+  <div>
+    <label>深度來源</label>
+    <div class="seg" id="modeSeg">
+      <button data-mode="lum" class="on">亮度（即時）</button>
+      <button data-mode="ai">AI 深度</button>
+    </div>
+  </div>
+
+  <div>
+    <label>深度強度 <span id="o-str"></span></label>
+    <input type="range" id="str" min="0" max="200" value="70" step="5">
+  </div>
+  <div>
+    <label>細緻度 <span id="o-seg"></span></label>
+    <input type="range" id="seg" min="60" max="300" value="180" step="20">
+  </div>
+  <div>
+    <label>光照 <span id="o-light"></span></label>
+    <input type="range" id="light" min="0" max="200" value="90" step="10">
+  </div>
+
+  <div class="row"><input type="checkbox" id="invert"><label for="invert">反轉遠近</label></div>
+  <div class="row"><input type="checkbox" id="wire"><label for="wire">線框</label></div>
+  <div class="row"><input type="checkbox" id="spin" checked><label for="spin">自動旋轉</label></div>
+</div>
+
+<div id="stage">
+  <div id="hint">← 先在上面選一張照片</div>
+  <div id="status"></div>
+</div>
+
+<div class="actions">
+  <button class="primary" id="expObj">下載 .obj 模型</button>
+  <button id="expPng">下載截圖 PNG</button>
+  <button id="reset">重設視角</button>
+</div>
+
+<p class="note">
+  <b>兩種深度模式：</b>「亮度」用畫面明暗即時估深度，秒開、離線可用，但不是精準立體；「AI 深度」用 Depth Anything 模型在瀏覽器內算真實深度，立體感較好，但首次要下載幾十 MB 模型、較慢。<br>
+  <b>提示：</b>正面、主體清楚、背景單純的照片效果最好。人像建議勾「反轉遠近」試試。這是單張照片的 2.5D 重建（浮雕式），非多角度真實建模。
+</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const stage=document.getElementById('stage'), hint=document.getElementById('hint'), statusEl=document.getElementById('status');
+  const $=id=>document.getElementById(id);
+  function setStatus(t){ if(!t){statusEl.style.display='none';return;} statusEl.style.display='block'; statusEl.textContent=t; }
+
+  let W=stage.clientWidth, H=stage.clientHeight;
+  const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(W,H); stage.appendChild(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0d0b18);
+  const camera=new THREE.PerspectiveCamera(45,W/H,0.1,100); camera.position.set(0,0,3.2);
+  const group=new THREE.Group(); scene.add(group);
+  scene.add(new THREE.AmbientLight(0xffffff,0.7));
+  const dir=new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(1,1,2); scene.add(dir);
+
+  let mesh=null, baseDepth=null, gridW=0, gridH=0, aspect=1, tex=null;
+
+  function disposeMesh(){ if(mesh){ group.remove(mesh); mesh.geometry.dispose(); if(mesh.material.map)mesh.material.map.dispose(); mesh.material.dispose(); mesh=null; } }
+
+  function buildMesh(){
+    if(!baseDepth) return;
+    disposeMesh();
+    const segX=gridW-1, segY=gridH-1;
+    const w=2*aspect>2? 2 : 2*aspect, h=w/aspect;
+    const geo=new THREE.PlaneGeometry(w,h,segX,segY);
+    applyDepth(geo);
+    const mat=new THREE.MeshStandardMaterial({map:tex,roughness:.9,metalness:0,side:THREE.DoubleSide,wireframe:$('wire').checked});
+    mesh=new THREE.Mesh(geo,mat); group.add(mesh);
+  }
+  function applyDepth(geo){
+    const pos=geo.attributes.position, str=(+$('str').value)/100, inv=$('invert').checked?-1:1;
+    for(let i=0;i<pos.count;i++){
+      let d=baseDepth[i]; d=(d-0.5); // 置中
+      pos.setZ(i, d*str*inv);
+    }
+    pos.needsUpdate=true; geo.computeVertexNormals();
+  }
+
+  // 從影像取樣出深度網格（亮度）＋建立材質貼圖
+  function processImage(img){
+    const grid=+$('seg').value;
+    const long=grid, ar=img.width/img.height;
+    gridW = ar>=1? long : Math.round(long*ar);
+    gridH = ar>=1? Math.round(long/ar) : long;
+    aspect=ar;
+    // 貼圖
+    const tc=document.createElement('canvas'); tc.width=Math.min(1024,img.width); tc.height=Math.round(tc.width/ar);
+    tc.getContext('2d').drawImage(img,0,0,tc.width,tc.height);
+    if(tex)tex.dispose(); tex=new THREE.CanvasTexture(tc); tex.colorSpace=THREE.SRGBColorSpace;
+    // 深度取樣
+    const sc=document.createElement('canvas'); sc.width=gridW; sc.height=gridH;
+    const sx=sc.getContext('2d'); sx.drawImage(img,0,0,gridW,gridH);
+    const data=sx.getImageData(0,0,gridW,gridH).data;
+    baseDepth=new Float32Array(gridW*gridH);
+    for(let y=0;y<gridH;y++)for(let x=0;x<gridW;x++){
+      const i=(y*gridW+x)*4, lum=(0.299*data[i]+0.587*data[i+1]+0.114*data[i+2])/255;
+      // PlaneGeometry 頂點順序為由上到下、由左到右
+      baseDepth[y*gridW+x]=lum;
+    }
+    buildMesh(); hint.style.display='none'; setStatus('亮度模式');
+  }
+
+  let currentImg=null;
+  $('file').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f)return;
+    const img=new Image(); img.onload=()=>{ currentImg=img; setMode('lum'); processImage(img); }; img.src=URL.createObjectURL(f);
+  });
+
+  // ---- AI 深度（Depth Anything，瀏覽器內）----
+  let aiBusy=false;
+  async function runAI(){
+    if(!currentImg||aiBusy) return; aiBusy=true;
+    try{
+      setStatus('AI：載入模型中…（首次較久）');
+      const mod=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.1.2');
+      mod.env.allowLocalModels=false;
+      const pipe=await mod.pipeline('depth-estimation','onnx-community/depth-anything-v2-small',{progress_callback:p=>{ if(p&&p.progress) setStatus('AI：下載模型 '+Math.round(p.progress)+'%'); }});
+      setStatus('AI：計算深度中…');
+      const out=await pipe(currentImg.src);
+      const dImg=out.depth; // RawImage: data,width,height,channels
+      const dw=dImg.width, dh=dImg.height, ch=dImg.channels||1, arr=dImg.data;
+      // 重新取樣到目前網格
+      let min=1e9,max=-1e9; const tmp=new Float32Array(gridW*gridH);
+      for(let y=0;y<gridH;y++)for(let x=0;x<gridW;x++){
+        const sxp=Math.min(dw-1,Math.floor(x/gridW*dw)), syp=Math.min(dh-1,Math.floor(y/gridH*dh));
+        const v=arr[(syp*dw+sxp)*ch]; tmp[y*gridW+x]=v; if(v<min)min=v; if(v>max)max=v;
+      }
+      const rng=(max-min)||1; for(let i=0;i<tmp.length;i++) tmp[i]=(tmp[i]-min)/rng;
+      baseDepth=tmp; buildMesh(); setStatus('AI 深度模式');
+    }catch(err){
+      setStatus('AI 載入失敗，維持亮度模式');
+      setMode('lum'); console.error(err);
+    }
+    aiBusy=false;
+  }
+
+  // 模式切換
+  const seg=$('modeSeg');
+  function setMode(m){ [...seg.children].forEach(b=>b.classList.toggle('on',b.dataset.mode===m)); }
+  seg.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+    if(!currentImg){ setStatus('先選一張照片'); return; }
+    setMode(b.dataset.mode);
+    if(b.dataset.mode==='ai') runAI(); else processImage(currentImg);
+  });
+
+  // 控制項
+  function readouts(){ $('o-str').textContent=$('str').value+'%'; $('o-seg').textContent=$('seg').value; $('o-light').textContent=$('light').value+'%'; }
+  ['str','invert'].forEach(id=>$(id).addEventListener('input',()=>{ if(mesh)applyDepth(mesh.geometry); readouts(); }));
+  $('seg').addEventListener('input',()=>{ readouts(); if(currentImg){ const ai=seg.querySelector('.on').dataset.mode==='ai'; processImage(currentImg); if(ai) runAI(); }});
+  $('wire').addEventListener('input',()=>{ if(mesh)mesh.material.wireframe=$('wire').checked; });
+  $('light').addEventListener('input',()=>{ dir.intensity=(+$('light').value)/100; readouts(); });
+
+  // 互動旋轉／縮放
+  let drag=false,px=0,py=0;
+  stage.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;});
+  addEventListener('pointerup',()=>drag=false);
+  addEventListener('pointermove',e=>{ if(!drag)return; group.rotation.y+=(e.clientX-px)*0.008; group.rotation.x+=(e.clientY-py)*0.008; group.rotation.x=Math.max(-1.2,Math.min(1.2,group.rotation.x)); px=e.clientX;py=e.clientY; });
+  stage.addEventListener('wheel',e=>{ e.preventDefault(); camera.position.z=Math.max(1.2,Math.min(8,camera.position.z*(1+Math.sign(e.deltaY)*0.1))); },{passive:false});
+  $('reset').onclick=()=>{ group.rotation.set(0,0,0); camera.position.set(0,0,3.2); };
+
+  // 匯出 OBJ
+  $('expObj').onclick=()=>{
+    if(!mesh){ setStatus('先生成模型'); return; }
+    const g=mesh.geometry, pos=g.attributes.position, idx=g.index; let s='# photo-to-3d export\n';
+    for(let i=0;i<pos.count;i++) s+=`v ${pos.getX(i).toFixed(4)} ${(-pos.getY(i)).toFixed(4)} ${pos.getZ(i).toFixed(4)}\n`;
+    for(let i=0;i<idx.count;i+=3) s+=`f ${idx.getX(i)+1} ${idx.getX(i+1)+1} ${idx.getX(i+2)+1}\n`;
+    dl(new Blob([s],{type:'text/plain'}),'photo-3d.obj');
+  };
+  $('expPng').onclick=()=>{ renderer.render(scene,camera); stage.querySelector('canvas').toBlob(b=>dl(b,'photo-3d.png')); };
+  function dl(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
+
+  // resize + loop
+  addEventListener('resize',()=>{ W=stage.clientWidth;H=stage.clientHeight; renderer.setSize(W,H); camera.aspect=W/H; camera.updateProjectionMatrix(); });
+  (function loop(){ if($('spin').checked&&!drag&&mesh) group.rotation.y+=0.004; renderer.render(scene,camera); requestAnimationFrame(loop); })();
+  readouts();
+})();
+</script>
+</body></html>
