@@ -21,10 +21,24 @@ img2threejs 是一個開源專案，把 vibe coding 和 3D 創作接起來。接
 
 與一般「圖生模型」不同，它的亮點是**圖生程式碼**——產出的是可讀、可改的 Three.js code，不是黑盒 mesh。
 
-## 安裝 / 使用
+## 安裝 / 使用（官方步驟）
 
-- 直接讓 Codex 安裝就能用（作者留言：「直接讓 codex 安裝就好了」）。
-- GitHub：https://github.com/img2threejs/img2threejs
+它是給 **Claude Code / Codex / OpenCode** 用的 skill，不是獨立 app。腳本只需 Python 3.10+（標準庫，免 pip）。
+
+1. **安裝**：把 repo clone 進 skills 資料夾
+   ```bash
+   git clone https://github.com/img2threejs/img2threejs.git ~/.claude/skills/img2threejs
+   ```
+   （Windows 一鍵安裝：本資料夾的 `install-img2threejs.bat`，會 clone 到 `%USERPROFILE%\.claude\skills\img2threejs`）
+2. **呼叫**：在 Claude Code 附上一張物件圖，執行
+   ```
+   /img2threejs Rebuild this object as a Three.js model, keep the proportions, angles, and colours.
+   ```
+3. **跟著 pipeline**：它會驗證圖片、寫評估與 spec、分階段（blockout → 結構 → 形體 → 材質 → 表面 → 光照 → 互動 → 最佳化）生成 factory，每階段給你 reference-vs-render 對照直到相符。
+
+**產出**：一個 `ObjectSculptSpec` JSON ＋ 一個 TypeScript `createXXXModel()` factory（回傳 `THREE.Group`，含 pivots/sockets/colliders 的 runtime 階層），可直接用於動畫／遊戲／XR。
+
+**限制（作者誠實聲明）**：單張圖看不到背面、無法保證精確幾何；擅長硬表面物件，角色是風格化重建而非寫實。授權 Apache 2.0。
 
 ## 相關（留言／相關串文）
 
