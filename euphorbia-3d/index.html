@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Euphorbia obesa · 照片轉 3D</title>
+<style>
+  :root{--accent:#5a7d4f;--bg:#f3f6f1;--card:#fff;--text:#22301e;--muted:#71806c;--line:#dce7d6}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+  h1{font-size:1.4rem;margin:.2em 0}
+  .sub{color:var(--muted);font-size:.95rem;margin:0 0 16px}
+  #stage{width:100%;height:480px;background:#20242a;border-radius:14px;overflow:hidden;position:relative;touch-action:none}
+  #stage canvas{display:block}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  button{font:inherit;padding:9px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;cursor:pointer}
+  button.primary{background:var(--accent);color:#fff;border:none;font-weight:600}
+  .row{display:flex;align-items:center;gap:8px}
+  .note{font-size:.85rem;color:var(--muted);margin-top:14px;line-height:1.7}
+</style></head>
+<body><div class="wrap">
+<h1>🌵 Euphorbia obesa（棒球球）— 照片轉 3D</h1>
+<p class="sub">由參考照片重建的程序化 Three.js 模型。拖曳旋轉、滾輪縮放。</p>
+
+<div id="stage"></div>
+
+<div class="bar">
+  <button class="primary" id="spin">⏸ 暫停旋轉</button>
+  <button id="wire">線框</button>
+  <button id="reset">重設視角</button>
+  <button id="obj">下載 .obj</button>
+  <button id="png">下載 PNG</button>
+</div>
+
+<p class="note">
+  重建重點：球狀主體（略扁）、8 條縱稜與凹溝、灰綠底色帶褐色縫線與鏽斑（程序化貼圖）、稜線上的疣點、頂部小花苞、黑色圓盆＋礫石鋪面。
+  這是 img2threejs 精神的「reconstruction-by-code」——整個物件是程式生成、非匯入的 mesh，可旋轉、可匯出 .obj。
+</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const stage=document.getElementById('stage');
+  let W=stage.clientWidth,H=stage.clientHeight;
+  const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(W,H); stage.appendChild(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0x20242a);
+  const camera=new THREE.PerspectiveCamera(42,W/H,0.1,100); camera.position.set(0,1.1,5.2);
+  const group=new THREE.Group(); scene.add(group);
+
+  scene.add(new THREE.AmbientLight(0xffffff,0.55));
+  const key=new THREE.DirectionalLight(0xfff2e0,1.05); key.position.set(3,5,4); scene.add(key);
+  const fill=new THREE.DirectionalLight(0xbcd0ff,0.35); fill.position.set(-4,2,-2); scene.add(fill);
+
+  // ---- 程序化表皮貼圖 ----
+  function makeSkin(){
+    const c=document.createElement('canvas'); c.width=1024; c.height=512; const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,0,512);
+    g.addColorStop(0,'#93a07f'); g.addColorStop(.5,'#7d8a68'); g.addColorStop(1,'#5f6b4c');
+    x.fillStyle=g; x.fillRect(0,0,1024,512);
+    // 稜之間的深色帶 + 縫線（8 條）
+    const ribs=8;
+    for(let i=0;i<ribs;i++){
+      const cx=(i+0.5)/ribs*1024;
+      // 稜峰亮帶
+      const rg=x.createLinearGradient(cx-64,0,cx+64,0);
+      rg.addColorStop(0,'rgba(60,70,45,0.0)'); rg.addColorStop(.5,'rgba(150,160,120,0.35)'); rg.addColorStop(1,'rgba(60,70,45,0.0)');
+      x.fillStyle=rg; x.fillRect(cx-64,0,128,512);
+    }
+    for(let i=0;i<ribs;i++){
+      const sx=(i)/ribs*1024; // 溝在稜之間
+      // 褐色縫線帶
+      x.strokeStyle='rgba(120,74,38,0.85)'; x.lineWidth=6; x.beginPath();
+      for(let y=0;y<=512;y+=18){ const off=(Math.floor(y/18)%2?10:-10); x.lineTo(sx+off,y);} x.stroke();
+      // 縫線旁淺褐暈
+      x.strokeStyle='rgba(150,100,60,0.28)'; x.lineWidth=22; x.beginPath();
+      for(let y=0;y<=512;y+=18){ const off=(Math.floor(y/18)%2?10:-10); x.lineTo(sx+off,y);} x.stroke();
+    }
+    // 疣點（沿稜的小點）
+    for(let k=0;k<900;k++){ const px=Math.random()*1024,py=Math.random()*512;
+      x.fillStyle='rgba(40,50,30,'+(0.15+Math.random()*0.25)+')'; x.beginPath(); x.arc(px,py,1+Math.random()*1.6,0,7); x.fill(); }
+    // 鏽斑
+    for(let k=0;k<7;k++){ const px=Math.random()*1024,py=140+Math.random()*320,r=20+Math.random()*45;
+      const rg=x.createRadialGradient(px,py,2,px,py,r); rg.addColorStop(0,'rgba(150,80,40,0.5)'); rg.addColorStop(1,'rgba(150,80,40,0)');
+      x.fillStyle=rg; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); }
+    const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.wrapS=THREE.RepeatWrapping; return t;
+  }
+
+  // ---- 球體主體（加縱稜）----
+  const RIBS=8;
+  const bodyGeo=new THREE.SphereGeometry(1,160,120);
+  (function ridged(){
+    const p=bodyGeo.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const vx=p.getX(i),vy=p.getY(i),vz=p.getZ(i);
+      const len=Math.hypot(vx,vy,vz);
+      const theta=Math.atan2(vz,vx);
+      const phi=Math.acos(vy/len);          // 0 頂 .. PI 底
+      const poleFade=Math.sin(phi);          // 兩極不起稜
+      const rib=(0.5+0.5*Math.cos(RIBS*theta)); // 0..1
+      const groove=Math.pow(rib,1.6);
+      const r=1 + (groove*0.10 - 0.02)*poleFade;
+      p.setXYZ(i, vx/len*r, vy/len*r, vz/len*r);
+    }
+    bodyGeo.computeVertexNormals();
+  })();
+  const body=new THREE.Mesh(bodyGeo,new THREE.MeshStandardMaterial({map:makeSkin(),roughness:.85,metalness:0}));
+  body.scale.set(1.15,0.92,1.15); body.position.y=0.55; group.add(body);
+
+  // 頂部凹陷處的小花苞
+  const crown=new THREE.Group(); crown.position.set(0,0.55+0.92*0.9,0); group.add(crown);
+  for(let i=0;i<5;i++){ const a=i/5*Math.PI*2, rr=0.06;
+    const nub=new THREE.Mesh(new THREE.SphereGeometry(0.05,16,12),new THREE.MeshStandardMaterial({color:0xbfa83c,roughness:.7}));
+    nub.position.set(Math.cos(a)*rr,0.02,Math.sin(a)*rr); nub.scale.y=1.5; crown.add(nub); }
+  const centerBud=new THREE.Mesh(new THREE.SphereGeometry(0.06,16,12),new THREE.MeshStandardMaterial({color:0x9c8f5a,roughness:.8}));
+  crown.add(centerBud);
+
+  // ---- 花盆 ----
+  const potMat=new THREE.MeshStandardMaterial({color:0x171717,roughness:.5,metalness:.05});
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(1.15,0.9,0.9,48),potMat); pot.position.y=-0.55; group.add(pot);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(1.15,0.06,16,48),potMat); rim.rotation.x=Math.PI/2; rim.position.y=-0.12; group.add(rim);
+  // 礫石鋪面
+  function makeGravel(){ const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d');
+    x.fillStyle='#6b5d4a'; x.fillRect(0,0,256,256);
+    for(let k=0;k<1600;k++){ x.fillStyle=['#8a7c63','#9b8f78','#5a4f3e','#c2b49a'][k&3];
+      x.beginPath(); x.arc(Math.random()*256,Math.random()*256,1+Math.random()*2.5,0,7); x.fill(); }
+    const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; }
+  const gravel=new THREE.Mesh(new THREE.CircleGeometry(1.12,48),new THREE.MeshStandardMaterial({map:makeGravel(),roughness:1}));
+  gravel.rotation.x=-Math.PI/2; gravel.position.y=-0.11; group.add(gravel);
+
+  group.position.y=-0.2;
+
+  // ---- 互動 ----
+  let drag=false,px=0,py=0,spin=true;
+  stage.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;});
+  addEventListener('pointerup',()=>drag=false);
+  addEventListener('pointermove',e=>{ if(!drag)return; group.rotation.y+=(e.clientX-px)*0.008; group.rotation.x+=(e.clientY-py)*0.006; group.rotation.x=Math.max(-0.6,Math.min(0.8,group.rotation.x)); px=e.clientX;py=e.clientY; });
+  stage.addEventListener('wheel',e=>{e.preventDefault(); camera.position.z=Math.max(2.6,Math.min(9,camera.position.z*(1+Math.sign(e.deltaY)*0.1)));},{passive:false});
+  document.getElementById('spin').onclick=e=>{spin=!spin; e.target.textContent=spin?'⏸ 暫停旋轉':'▶ 繼續旋轉';};
+  let wf=false; document.getElementById('wire').onclick=()=>{ wf=!wf; group.traverse(o=>{if(o.isMesh)o.material.wireframe=wf;}); };
+  document.getElementById('reset').onclick=()=>{ group.rotation.set(0,0,0); camera.position.set(0,1.1,5.2); };
+
+  function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();}
+  document.getElementById('png').onclick=()=>{ renderer.render(scene,camera); stage.querySelector('canvas').toBlob(b=>dl(b,'euphorbia.png')); };
+  document.getElementById('obj').onclick=()=>{
+    let s='# Euphorbia obesa - generated by photo-to-3d\n',off=0;
+    group.updateMatrixWorld(true);
+    group.traverse(o=>{ if(!o.isMesh)return; const g=o.geometry, p=g.attributes.position, idx=g.index; const m=o.matrixWorld; const v=new THREE.Vector3();
+      for(let i=0;i<p.count;i++){ v.fromBufferAttribute(p,i).applyMatrix4(m); s+=`v ${v.x.toFixed(4)} ${v.y.toFixed(4)} ${v.z.toFixed(4)}\n`; }
+      if(idx){ for(let i=0;i<idx.count;i+=3) s+=`f ${idx.getX(i)+1+off} ${idx.getX(i+1)+1+off} ${idx.getX(i+2)+1+off}\n`; }
+      off+=p.count;
+    });
+    dl(new Blob([s],{type:'text/plain'}),'euphorbia.obj');
+  };
+
+  addEventListener('resize',()=>{W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H);camera.aspect=W/H;camera.updateProjectionMatrix();});
+  (function loop(){ if(spin&&!drag) group.rotation.y+=0.005; renderer.render(scene,camera); requestAnimationFrame(loop); })();
+})();
+</script>
+</body></html>
