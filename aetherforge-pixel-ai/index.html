@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AetherForge AI</title>
+<style>
+  :root{--accent:#8b5cf6;--bg:#f4f1fb;--card:#fff;--text:#241f33;--muted:#7c7591;--line:#e6e0f4}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.6rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#e9e2fb;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:180px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .price{display:flex;gap:12px;align-items:baseline;margin-top:6px}
+  .price .old{color:var(--muted);text-decoration:line-through}
+  .price .new{font-size:1.6rem;font-weight:800;color:var(--accent)}
+  .warn{background:#f6f1ff;border-left:3px solid var(--accent);padding:12px 14px;border-radius:8px;margin:10px 0}
+  /* 像素示意 */
+  .pixgrid{display:grid;grid-template-columns:repeat(8,18px);gap:2px;justify-content:center;margin:6px 0}
+  .pixgrid i{width:18px;height:18px;border-radius:3px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>🎮 AetherForge AI — Aether Generate</h1>
+<div><span class="tag">AI 生圖</span><span class="tag">像素藝術</span><span class="tag">遊戲素材</span></div>
+<p class="lead">專門「無限生成像素藝術」的 AI 工具，連 GPT/Gemini 難做的 32px 像素圖也能生，支援圖生圖。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <div class="pixgrid" id="pix"></div>
+</div>
+
+<div class="card">
+  <h2>它是什麼</h2>
+  <p>新功能「Aether Generate」正在招募 Beta。主打<b>無限生成像素藝術</b>（含 GPT/Gemini 難處理的 32px 細像素），並支援 <b>Image-to-Image（圖生圖）</b>。定位給想自製獨特美術風格的 Vibe coding／遊戲開發者。免費素材已含角色與怪物可先試品質。</p>
+</div>
+
+<div class="card">
+  <h2>價格（Beta）</h2>
+  <div class="price"><span class="old">US$34.9/月</span><span class="new">US$22.9/月</span></div>
+  <p class="src">Beta 測試者優惠，測試結束後仍以同價續用。報名：在其 Discord 社群頻道留言。</p>
+</div>
+
+<div class="card">
+  <h2>注意事項（留言區）</h2>
+  <div class="warn">有人質疑「測試還收費」「比 PixelLab 貴」「本地模型就能文生圖吃到飽」；作者回應可先用免費素材確認品質。也有人反映免費次數偏少（生一次不滿意要等約一週）。屬付費 SaaS，建議先用免費額度評估。</div>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @aetherforgeai.c0m · 擷取於 2026-07-23</p></div>
+</div>
+<script>
+  const pal=['#2b2d42','#8d99ae','#ef233c','#ffd166','#06d6a0','#118ab2','#7b5cf6','#f4a261'];
+  const pix=document.getElementById('pix'); let h='';
+  for(let i=0;i<64;i++){ h+=`<i style="background:${pal[Math.floor(Math.random()*pal.length)]}"></i>`; }
+  pix.innerHTML=h;
+</script>
+</body></html>

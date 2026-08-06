@@ -47,6 +47,10 @@ img2threejs 是一個開源專案，把 vibe coding 和 3D 創作接起來。接
   觀察：提示加入「可公開發佈」幾個字，Codex 似乎更重視程式品質與完成度。
 - 本資料夾同屬 AI×3D：[blender-mcp](../blender-mcp/README.md)、[ghostpoly-ai](../ghostpoly-ai/README.md)。
 
+## 延伸貼文（Codex ImageGen + img2threejs）
+
+Threads [@krumjahn](https://www.threads.com/@krumjahn/post/Dbnn2zem718)：有人把 **Codex 的 ImageGen 模組 + img2threejs** 疊起來，一個指令就把 2D 圖轉成互動 3D low-poly 物件；宣稱一張圖只用約 8 個 token（成本約 Blender 工作流的 1/100），上線 24 小時被 fork 超過 6000 次。重點是「兩個模組疊在一起，工作流就變了」——不用開 Blender、不用寫 Three.js、不用找設計師。
+
 ## 資料來源
 
 - GitHub：https://github.com/img2threejs/img2threejs

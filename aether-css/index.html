@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aether CSS</title>
+<style>
+  :root{--accent:#5a7bd8;--bg:#eef1f8;--card:#fff;--text:#20263a;--muted:#79809a;--line:#dde2f0}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#dee5fa;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* demo：glassmorphism 產生器 */
+  .stage{border-radius:16px;overflow:hidden;padding:34px;display:flex;align-items:center;justify-content:center;min-height:230px;
+    background:linear-gradient(135deg,#7b6cf6,#4ec6e0 55%,#f699c9)}
+  .glass{width:260px;padding:26px;border-radius:20px;color:#fff;text-align:center;font-weight:600;
+    background:rgba(255,255,255,var(--a));backdrop-filter:blur(var(--b));-webkit-backdrop-filter:blur(var(--b));
+    border:1px solid rgba(255,255,255,var(--brd));box-shadow:0 8px 32px rgba(0,0,0,var(--sh))}
+  .glass small{display:block;font-weight:400;opacity:.85;margin-top:6px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:16px}
+  .controls label{font-size:.85rem;font-weight:600;display:block;margin-bottom:4px}
+  input[type=range]{width:100%}
+  pre{background:#1e2233;color:#d7e0ff;padding:14px;border-radius:10px;overflow:auto;font-size:.85rem;margin-top:14px}
+  @media(max-width:520px){.controls{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>Aether CSS</h1>
+<div><span class="tag">CSS 產生器</span><span class="tag">玻璃擬態</span></div>
+<p class="lead">快速產生 Liquid Glass / Glassmorphism / Neumorphism 效果的 CSS，即時預覽、直接複製。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="src">仿 Aether CSS 概念的玻璃擬態產生器——拖滑桿即時預覽，下方自動產出 CSS：</p>
+  <div class="stage"><div class="glass" id="glass">Glassmorphism<small>拖下面的滑桿看看</small></div></div>
+  <div class="controls">
+    <div><label>模糊 blur <span id="o-b"></span></label><input type="range" id="b" min="0" max="30" value="12"></div>
+    <div><label>透明度 <span id="o-a"></span></label><input type="range" id="a" min="0" max="60" value="18"></div>
+    <div><label>邊框亮度 <span id="o-brd"></span></label><input type="range" id="brd" min="0" max="80" value="35"></div>
+    <div><label>陰影 <span id="o-sh"></span></label><input type="range" id="sh" min="0" max="60" value="30"></div>
+  </div>
+  <pre id="code"></pre>
+</div>
+
+<div class="card">
+  <h2>主要功能</h2>
+  <ul>
+    <li>即時預覽 Liquid Glass / Glassmorphism / Neumorphism</li>
+    <li>免手刻 blur、陰影、透明度</li>
+    <li>適合 landing page、dashboard、小工具介面</li>
+    <li>很適合搭配 AI coding 補強畫面質感</li>
+  </ul>
+  <a class="btn" href="https://aethercss.lovable.app" target="_blank" rel="noopener">開啟 aethercss.lovable.app ↗</a>
+</div>
+
+<div class="card">
+  <h2>相關</h2>
+  <p class="src">留言提到 <b>Kinetics</b>（同作者）：有重量感的網頁互動動畫（spring physics，可複製 CSS/React、附 stiffness/damping 參數與 AI Prompt）。本站同類：<a href="../feralui-gradients/index.html">feralui-gradients</a>、<a href="../21st-dev/index.html">21st-dev</a>。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">官網：<a href="https://aethercss.lovable.app" target="_blank" rel="noopener">aethercss.lovable.app</a><br>介紹貼文：Threads @bing_sunzhi · 擷取於 2026-07-23</p></div>
+</div>
+<script>
+  const $=id=>document.getElementById(id), g=$('glass').style, root=$('glass');
+  function upd(){
+    const b=+$('b').value, a=(+$('a').value)/100, brd=(+$('brd').value)/100, sh=(+$('sh').value)/100;
+    root.style.setProperty('--b',b+'px'); root.style.setProperty('--a',a); root.style.setProperty('--brd',brd); root.style.setProperty('--sh',sh);
+    $('o-b').textContent=b+'px'; $('o-a').textContent=a.toFixed(2); $('o-brd').textContent=brd.toFixed(2); $('o-sh').textContent=sh.toFixed(2);
+    $('code').textContent=
+`background: rgba(255,255,255,${a.toFixed(2)});
+backdrop-filter: blur(${b}px);
+-webkit-backdrop-filter: blur(${b}px);
+border: 1px solid rgba(255,255,255,${brd.toFixed(2)});
+box-shadow: 0 8px 32px rgba(0,0,0,${sh.toFixed(2)});
+border-radius: 20px;`;
+  }
+  ['b','a','brd','sh'].forEach(id=>$(id).addEventListener('input',upd)); upd();
+</script>
+</body></html>
