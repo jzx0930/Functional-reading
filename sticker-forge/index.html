@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sticker Forge</title>
+<style>
+  :root{--accent:#e0568a;--bg:#fbf3f7;--card:#fff;--text:#2b202699;--muted:#8a7d84;--line:#efdde7}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:#2b2026;line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.7rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#fbe0ec;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  /* demo */
+  .stage{display:flex;align-items:center;justify-content:center;min-height:280px;border-radius:16px;
+    background:repeating-linear-gradient(45deg,#f3ebef,#f3ebef 12px,#efe4ea 12px,#efe4ea 24px);perspective:800px}
+  .sticker{position:relative;width:190px;height:190px;border-radius:22px;display:flex;align-items:center;justify-content:center;
+    font-size:3.4rem;font-weight:800;color:#fff;text-align:center;
+    background:hsl(var(--hue) 75% 58%);
+    border:calc(var(--stroke)*1px) solid #fff;
+    transform:rotate(calc(var(--tilt)*1deg)) rotateX(calc(var(--curl)*0.4deg));
+    box-shadow:0 calc(var(--sh)*1px) calc(var(--sh)*1.6px) rgba(0,0,0,.28);
+    transition:transform .1s}
+  .sticker .gloss{position:absolute;inset:0;border-radius:20px;pointer-events:none;
+    background:linear-gradient(140deg,rgba(255,255,255,var(--gloss)) 0%,transparent 45%)}
+  /* 撕角 */
+  .peel{position:absolute;right:0;bottom:0;width:calc(var(--curl)*1px);height:calc(var(--curl)*1px);
+    background:linear-gradient(135deg,rgba(0,0,0,.12),rgba(255,255,255,.6));
+    border-bottom-right-radius:20px;transform:rotate(0);
+    clip-path:polygon(100% 0,100% 100%,0 100%);
+    box-shadow:-3px -3px 8px rgba(0,0,0,.2)}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;margin-top:16px}
+  .controls label{font-size:.85rem;font-weight:600;display:block;margin-bottom:4px;color:#2b2026}
+  input[type=range]{width:100%}
+  input[type=text]{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font:inherit}
+  @media(max-width:520px){.controls{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>🏷️ Sticker Forge</h1>
+<div><span class="tag">貼紙元件</span><span class="tag">互動小工具</span></div>
+<p class="lead">互動式貼紙產生器——做出有「撕起來／卷曲」感的擬真貼紙。</p>
+
+<div class="card">
+  <h2>互動示範</h2>
+  <p class="src">仿 Sticker Forge 概念——拖滑桿調整傾斜、卷角、陰影、光澤、描邊、顏色，或改文字：</p>
+  <div class="stage"><div class="sticker" id="st">
+    <span id="txt">✨</span><div class="gloss"></div><div class="peel"></div>
+  </div></div>
+  <div class="controls">
+    <div><label>文字 / emoji</label><input type="text" id="text" value="✨" maxlength="6"></div>
+    <div><label>顏色 <span id="o-hue"></span></label><input type="range" id="hue" min="0" max="360" value="330"></div>
+    <div><label>傾斜 <span id="o-tilt"></span></label><input type="range" id="tilt" min="-20" max="20" value="-8"></div>
+    <div><label>卷角 <span id="o-curl"></span></label><input type="range" id="curl" min="0" max="70" value="34"></div>
+    <div><label>陰影 <span id="o-sh"></span></label><input type="range" id="sh" min="0" max="30" value="14"></div>
+    <div><label>光澤 <span id="o-gloss"></span></label><input type="range" id="gloss" min="0" max="90" value="45"></div>
+    <div><label>描邊 <span id="o-stroke"></span></label><input type="range" id="stroke" min="0" max="16" value="8"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>主要功能</h2>
+  <ul>
+    <li>調整文字、圖片、顏色與描邊</li>
+    <li>控制傾斜、背膠、卷曲感（peel/curl）</li>
+    <li>調陰影、光澤，讓畫面更像真實貼紙</li>
+    <li>複製嵌入碼，放到自己的網頁</li>
+  </ul>
+  <p class="src">適合個人網站彩蛋、landing page 裝飾、幫 Side Project 加記憶點。貼文未附官網，可搜尋「Sticker Forge」。</p>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">介紹貼文：Threads @bing_sunzhi · 擷取於 2026-07-23</p></div>
+</div>
+<script>
+  const $=id=>document.getElementById(id), st=$('st').style;
+  function upd(){
+    st.setProperty('--hue',$('hue').value); st.setProperty('--tilt',$('tilt').value);
+    st.setProperty('--curl',$('curl').value); st.setProperty('--sh',$('sh').value);
+    st.setProperty('--gloss',(+$('gloss').value)/100); st.setProperty('--stroke',$('stroke').value);
+    $('txt').textContent=$('text').value||'✨';
+    $('o-hue').textContent=$('hue').value; $('o-tilt').textContent=$('tilt').value+'°';
+    $('o-curl').textContent=$('curl').value; $('o-sh').textContent=$('sh').value;
+    $('o-gloss').textContent=Math.round($('gloss').value)+'%'; $('o-stroke').textContent=$('stroke').value;
+  }
+  ['hue','tilt','curl','sh','gloss','stroke','text'].forEach(id=>$(id).addEventListener('input',upd)); upd();
+</script>
+</body></html>
