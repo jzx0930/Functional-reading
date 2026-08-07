@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MAC — Multi-Agent CAD</title>
+<style>
+  :root{--accent:#c85a2e;--bg:#faf5f1;--card:#fff;--text:#2b2119;--muted:#8a7d72;--line:#eee0d4}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  a.back{color:var(--muted);text-decoration:none;font-size:.9rem}
+  h1{font-size:1.6rem;margin:.3em 0 .1em}
+  .tag{display:inline-block;background:#f4e2d5;color:var(--accent);font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:20px;margin-right:6px}
+  .lead{color:var(--muted);font-size:1.05rem;margin:.4em 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:22px 0}
+  h2{font-size:1.2rem;margin:0 0 12px}
+  h2::before{content:"";display:inline-block;width:8px;height:20px;background:var(--accent);border-radius:3px;vertical-align:-3px;margin-right:9px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:11px 20px;border-radius:10px;font-weight:600;margin-top:8px}
+  ul{padding-left:20px}li{margin:6px 0}.src{font-size:.9rem;color:var(--muted)}
+  .ph{display:flex;align-items:center;justify-content:center;height:200px;border:2px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;text-align:center;padding:20px}
+  .prev img{width:100%;border-radius:12px;display:block}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .stat{flex:1;min-width:120px;background:#f6e9df;border-radius:12px;padding:14px;text-align:center}
+  .stat b{display:block;font-size:1.5rem;color:var(--accent)}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0}
+  .step{background:#f4e6da;border:1px solid #e6cbb4;color:#a5461f;border-radius:10px;padding:8px 12px;font-weight:600;font-size:.85rem}
+  .arrow{color:var(--accent);font-weight:700}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../index.html">← 返回總覽</a>
+<h1>🛠️ MAC — Multi-Agent CAD</h1>
+<div><span class="tag">AI × CAD</span><span class="tag">多 agent</span><span class="tag">text-to-3D 列印</span></div>
+<p class="lead">用 4 個協作 agent 把自然語言直接變成可 3D 列印的 CAD 模型（STEP/STL），比單 agent 省 116× token。清華 IEI Lab。</p>
+
+<div class="card"><h2>畫面預覽</h2>
+  <div class="prev"><img src="preview.png" alt="preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  <div class="ph">把截圖命名為 <b style="margin:0 4px">preview.png</b> 放進本資料夾即可顯示</div></div>
+  <div class="stats"><div class="stat"><b>116×</b>更少 token</div><div class="stat"><b>13×</b>更低成本</div><div class="stat"><b>99.3%</b>特徵通過率</div></div>
+  <a class="btn" href="https://github.com/Pan-Chera/Multi-Agent-CAD" target="_blank" rel="noopener">開啟 GitHub: Pan-Chera/Multi-Agent-CAD ↗</a>
+</div>
+
+<div class="card">
+  <h2>4 個 agent 的 pipeline</h2>
+  <div class="flow">
+    <span class="step">Spec Planner</span><span class="arrow">→</span>
+    <span class="step">Geometric Architect</span><span class="arrow">→</span>
+    <span class="step">Python Coder</span><span class="arrow">→</span>
+    <span class="step">Skill Loop (QA/修復)</span>
+  </div>
+  <p>agent 之間只傳精簡的結構化狀態（CADBrief、ArchitectPlan、QA 報告），不塞整段對話歷史 → token 從指數成長變線性。底層用 build123d，串接靠 LangGraph。</p>
+  <p class="src">核心洞見：瓶頸不是 CAD 能力，而是推理組織沒效率——單 agent 跑 10 題就燒 103M token、1,307 次 API 呼叫。</p>
+</div>
+
+<div class="card">
+  <h2>主要特色</h2>
+  <ul>
+    <li><b>零 token 確定性翻譯器</b>：常見 CAD 操作直接由 plan 翻成 build123d 程式，不呼叫 LLM，只有邊角案例交給 Aider。</li>
+    <li><b>白箱可稽核</b>：每個中間產物都落地存檔，可在每次 QA 檢查點介入、覆寫、補需求。</li>
+    <li><b>混合路由</b>：4 階段各自挑模型（便宜模型解析、強模型設計、Claude/GPT 修復），可換成自訓本地小模型。</li>
+    <li><b>print-in-place 可動關節</b>：多實體共存於一個 STEP，留 0.4–1mm 間隙，印完直接會動（球中籠、陀螺儀）。</li>
+    <li>支援任何 OpenAI 相容端點（OpenAI、DeepSeek、Gemini、本地 Ollama、Claude），非鎖定阿里雲。</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>安裝 / 使用</h2>
+  <ul>
+    <li>Python 3.11；<code>conda env create -f environment.yml</code>（Windows 建議走 conda）。</li>
+    <li>兩種跑法：<b>終端機</b>（10 秒檢查點可中途注入需求／中止）或 <b>Web UI</b>（瀏覽器內 3D 預覽 + 一鍵下載）。</li>
+    <li>產出：<code>temp_output_0.step</code>／<code>.stl</code>、<code>temp_design_0.py</code>（build123d 原始碼）等。</li>
+  </ul>
+</div>
+
+<div class="card"><h2>資料來源</h2>
+  <p class="src">GitHub：<a href="https://github.com/Pan-Chera/Multi-Agent-CAD" target="_blank" rel="noopener">Pan-Chera/Multi-Agent-CAD</a> · 清華 IEI Lab · 擷取於 2026-07-23</p></div>
+</div>
+</body></html>
