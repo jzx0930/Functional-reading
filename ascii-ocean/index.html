@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Ocean — 用字元當像素的水下場景</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#01040a}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;
+    cursor:crosshair;
+  }
+
+  /* 場景本體：一個 <pre>，每禎換掉 textContent。
+     顏色不是逐格畫的 —— 用一層漸層 + background-clip:text 透過文字顯色，
+     所以上色完全不花每格的成本。 */
+  #out{
+    margin:0;
+    white-space:pre;
+    font-weight:600;
+    letter-spacing:0;
+    user-select:none;
+    background:linear-gradient(180deg,
+      #b8f6ff 0%, #6fe3fb 10%, #35c2ea 26%,
+      #1a8ccd 48%, #0e55a0 70%, #072c62 86%, #04163a 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    filter:drop-shadow(0 0 7px rgba(70,200,255,.22));
+  }
+
+  /* HUD */
+  #hud{
+    position:fixed;left:14px;bottom:12px;
+    font-size:11px;line-height:1.6;color:#4e86a8;
+    letter-spacing:.04em;pointer-events:none;
+  }
+  #hud b{color:#8fd4ef;font-weight:600}
+  #hud kbd{
+    color:#aee4f7;background:#0b2436;border:1px solid #16415c;
+    border-radius:3px;padding:0 4px;font:inherit;
+  }
+  #title{
+    position:fixed;left:14px;top:12px;
+    font-size:11px;line-height:1.7;color:#3f6f8c;letter-spacing:.06em;
+    pointer-events:none;
+  }
+  #title b{display:block;color:#9adcf3;font-size:13px;letter-spacing:.12em}
+</style>
+</head>
+<body>
+
+<pre id="out" aria-label="ASCII 水下場景動畫"></pre>
+
+<div id="title"><b>A S C I I   O C E A N</b>純字元渲染 · 無 WebGL · 無相依套件</div>
+<div id="hud">
+  <span id="stat">—</span><br>
+  滑鼠移動 ＝ 視角　<kbd>空白鍵</kbd> 暫停　<kbd>C</kbd> 換字元集　<kbd>D</kbd> 只看深度
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const pre   = document.getElementById("out");
+const stat  = document.getElementById("stat");
+
+/* ──────────────────────────────────────────────────────────────
+   1. 字元梯度 —— 整個效果的核心就這一行。
+   把 0~1 的亮度對應到一串由疏到密的字元，字元的「墨水量」就是灰階。
+   ────────────────────────────────────────────────────────────── */
+const RAMPS = [
+  " .,:;clodxkO0KXNWM@",            // 預設：密度均勻
+  " .:-=+*#%@",                     // 經典短梯度，顆粒感重
+  " .`^\",:;Il!i~+_-?]}1)|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$", // 長梯度，最平滑
+];
+let rampIdx = 0;
+let RAMP = RAMPS[0], RMAX = RAMP.length - 1;
+
+/* ── 2. 畫布尺寸（以字元為單位） ───────────────────────────── */
+const FONT_PX   = 13;
+const MAX_COLS  = 230;
+const MAX_ROWS  = 96;
+
+let COLS = 0, ROWS = 0, charW = 8, charH = FONT_PX, aspect = 1;
+let zbuf, lbuf, codes;
+
+function measureAndResize(){
+  pre.style.fontSize   = FONT_PX + "px";
+  pre.style.lineHeight = FONT_PX + "px";
+
+  const cs  = getComputedStyle(pre);
+  const ctx = document.createElement("canvas").getContext("2d");
+  ctx.font  = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  charW = ctx.measureText("M".repeat(40)).width / 40;
+  charH = FONT_PX;
+
+  COLS = Math.min(MAX_COLS, Math.floor(innerWidth  / charW) - 1);
+  ROWS = Math.min(MAX_ROWS, Math.floor(innerHeight / charH) - 1);
+  COLS = Math.max(40, COLS); ROWS = Math.max(20, ROWS);
+
+  // 字元是「高的長方形」，投影時要把這個比例補回去，不然圓會變扁。
+  aspect = (COLS * charW) / (ROWS * charH);
+
+  zbuf  = new Float32Array(COLS * ROWS);
+  lbuf  = new Float32Array(COLS * ROWS);
+  codes = new Uint16Array(ROWS * (COLS + 1));
+}
+addEventListener("resize", measureAndResize);
+measureAndResize();
+
+/* ── 3. 相機 ───────────────────────────────────────────────── */
+const cam = { x:0, y:1.5, z:0, yaw:0, pitch:-0.03, focal:1.05 };
+let mx = 0.5, my = 0.5;          // 目標（滑鼠）
+let cx = 0.5, cy = 0.5;          // 平滑後
+addEventListener("pointermove", e => {
+  mx = e.clientX / innerWidth;
+  my = e.clientY / innerHeight;
+});
+
+/* ── 4. 光照 ───────────────────────────────────────────────── */
+const LX = 0.22, LY = 0.96, LZ = 0.14;   // 已正規化的太陽方向（由上方射入）
+
+/* ── 5. 投影 + z-buffer 寫入 ───────────────────────────────── */
+let sinYaw = 0, cosYaw = 1, sinPit = 0, cosPit = 1;
+
+function splat(wx, wy, wz, lum, fat){
+  // 平移到相機空間
+  let dx = wx - cam.x, dy = wy - cam.y, dz = wz - cam.z;
+
+  // yaw（繞 Y）
+  let rx =  dx * cosYaw + dz * sinYaw;
+  let rz = -dx * sinYaw + dz * cosYaw;
+  // pitch（繞 X）
+  let ry =  dy * cosPit - rz * sinPit;
+      rz =  dy * sinPit + rz * cosPit;
+
+  if (rz > -0.6) return;               // 在相機後方或太近
+
+  const invZ = 1 / -rz;
+  const ndcX = rx * invZ * cam.focal / aspect;
+  const ndcY = ry * invZ * cam.focal;
+  if (ndcX < -1.15 || ndcX > 1.15 || ndcY < -1.15 || ndcY > 1.15) return;
+
+  const col0 = (ndcX * 0.5 + 0.5) * COLS;
+  const row0 = (0.5 - ndcY * 0.5) * ROWS;
+
+  // 距離霧化：越遠越融進背景
+  const dist = -rz;
+  const fog  = Math.exp(-dist * 0.016);
+  const L    = lum * fog;
+
+  // 近的東西用 2×2 補滿，避免點雲露出破洞
+  const r = (fat && dist < 26) ? 1 : 0;
+  const c0 = col0 | 0, r0 = row0 | 0;
+
+  for (let j = r0 - r; j <= r0 + r; j++){
+    if (j < 0 || j >= ROWS) continue;
+    for (let i = c0 - r; i <= c0 + r; i++){
+      if (i < 0 || i >= COLS) continue;
+      const k = j * COLS + i;
+      if (dist < zbuf[k]){ zbuf[k] = dist; lbuf[k] = L; }
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   6. 場景
+   ────────────────────────────────────────────────────────────── */
+
+/* 6a. 水面 —— 三組正弦疊加，法線用解析偏微分算，不用取樣 */
+const SURF_Y = 15;
+function drawSurface(t){
+  for (let z = -4; z > -92; z -= 2.1){
+    const span = 46;
+    for (let x = -span; x <= span; x += 1.55){
+      const p1 = x * 0.25 + t * 1.15;
+      const p2 = z * 0.20 - t * 0.85;
+      const p3 = (x + z) * 0.145 + t * 1.7;
+
+      const h  = 0.85*Math.sin(p1) + 0.62*Math.sin(p2) + 0.40*Math.sin(p3);
+      const dx = 0.85*0.25*Math.cos(p1) + 0.40*0.145*Math.cos(p3);
+      const dz = 0.62*0.20*Math.cos(p2) + 0.40*0.145*Math.cos(p3);
+
+      // 從水下往上看，法線朝下
+      let nx = dx, ny = -1, nz = dz;
+      const inv = 1 / Math.hypot(nx, ny, nz);
+      nx *= inv; ny *= inv; nz *= inv;
+
+      const nd = Math.max(0, -(nx*LX + ny*LY + nz*LZ));
+      const glint = Math.pow(nd, 26) * 0.95;     // 波峰的閃光
+      splat(x, SURF_Y + h, z, 0.18 + nd*nd*0.55 + glint, false);
+    }
+  }
+}
+
+/* 6b. 水母 —— 參數化傘面，法線是解析的（球面方向） */
+const JELLY = [
+  { x:-7.5, y: 4.0, z:-21, r:3.4, ph:0.0,  sp:0.55, drift:0.9 },
+  { x: 8.0, y:-1.5, z:-31, r:4.6, ph:2.1,  sp:0.42, drift:0.6 },
+  { x:-2.0, y: 7.5, z:-45, r:5.8, ph:4.3,  sp:0.33, drift:0.45 },
+];
+const RINGS = 16, SEGS = 40, TENTACLES = 9;
+
+function drawJellyfish(t){
+  for (const J of JELLY){
+    // 脈動：傘面縮放，縮的時候同時被壓扁（體積感）
+    const pulse  = Math.sin(t * 1.5 * J.sp * 2 + J.ph);
+    const rs     = 1 + pulse * 0.17;
+    const ys     = 1 - pulse * 0.22;
+
+    // 緩慢上浮 + 左右漂
+    const by = J.y + Math.sin(t * J.sp + J.ph) * 1.5;
+    const bx = J.x + Math.sin(t * J.sp * 0.6 + J.ph * 1.7) * J.drift;
+
+    // 傘
+    for (let ri = 0; ri <= RINGS; ri++){
+      const u  = ri / RINGS;
+      const th = u * Math.PI * 0.56;
+      const st = Math.sin(th), ct = Math.cos(th);
+      const rr = J.r * st * rs;
+      const yy = by + J.r * ct * 0.78 * ys;
+
+      const segs = Math.max(6, (SEGS * st) | 0 + 6);
+      for (let si = 0; si < segs; si++){
+        const phi = (si / segs) * Math.PI * 2;
+        const cp = Math.cos(phi), sp = Math.sin(phi);
+
+        // 傘緣的荷葉邊
+        const frill = 1 + Math.sin(phi * 7 + t * 2.2 + J.ph) * 0.05 * u;
+
+        const px = bx + rr * cp * frill;
+        const pz = J.z + rr * sp * frill;
+
+        // 法線 = 球面外法線
+        const nx = st * cp, ny = ct, nz = st * sp;
+        const nd = Math.max(0, nx*LX + ny*LY + nz*LZ);
+
+        // 傘緣偏亮（半透明邊緣的感覺）
+        const rim = Math.pow(u, 3) * 0.45;
+        splat(px, yy, pz, 0.16 + nd * 0.62 + rim, true);
+      }
+    }
+
+    // 觸手
+    for (let k = 0; k < TENTACLES; k++){
+      const phi = (k / TENTACLES) * Math.PI * 2 + J.ph * 0.3;
+      const cp = Math.cos(phi), sp = Math.sin(phi);
+      const r0 = J.r * 0.82 * rs;
+      const len = J.r * 3.1;
+
+      for (let s = 0; s <= 26; s++){
+        const v = s / 26;
+        const sway = Math.sin(v * 3.4 - t * 2.1 + J.ph + k) * (0.35 + v * 1.25);
+        const px = bx + (r0 + v * 0.5) * cp + sway * 0.55 * cp;
+        const pz = J.z + (r0 + v * 0.5) * sp + sway * 0.55 * sp;
+        const py = by - v * len;
+        splat(px, py, pz, 0.42 * (1 - v * 0.72), false);
+      }
+    }
+  }
+}
+
+/* 6c. 氣泡 */
+const BUBBLES = [];
+for (let i = 0; i < 170; i++){
+  BUBBLES.push({
+    x: (Math.random()-0.5)*56,
+    y: -20 + Math.random()*40,
+    z: -6 - Math.random()*72,
+    v: 1.4 + Math.random()*3.0,
+    w: Math.random()*6.28,
+    a: 0.25 + Math.random()*0.9,
+  });
+}
+function drawBubbles(t, dt){
+  for (const b of BUBBLES){
+    b.y += b.v * dt;
+    if (b.y > SURF_Y - 0.4){
+      b.y = -20; b.x = (Math.random()-0.5)*56; b.z = -6 - Math.random()*72;
+    }
+    const wob = Math.sin(t * 2.4 + b.w) * b.a;
+    splat(b.x + wob, b.y, b.z + Math.cos(t*1.7+b.w)*b.a*0.6, 0.95, b.a > 0.8);
+  }
+}
+
+/* 6d. 懸浮微粒（marine snow） */
+const SNOW = [];
+for (let i = 0; i < 420; i++){
+  SNOW.push({
+    x:(Math.random()-0.5)*80, y:-22+Math.random()*44, z:-4-Math.random()*86,
+    s:0.12+Math.random()*0.35, w:Math.random()*6.28,
+  });
+}
+function drawSnow(t, dt){
+  for (const p of SNOW){
+    p.y -= p.s * dt;
+    if (p.y < -24){ p.y = SURF_Y; p.x = (Math.random()-0.5)*80; }
+    splat(p.x + Math.sin(t*0.6+p.w)*0.5, p.y, p.z, 0.33, false);
+  }
+}
+
+/* 6e. 海底 + 海草 */
+function drawFloor(t){
+  const FY = -19;
+  for (let z = -10; z > -88; z -= 2.6){
+    for (let x = -44; x <= 44; x += 2.0){
+      const h = Math.sin(x*0.18)*1.2 + Math.sin(z*0.21+1.3)*1.5 + Math.sin((x+z)*0.09)*2.1;
+      splat(x, FY + h, z, 0.30, false);
+    }
+  }
+  // 海草
+  for (let k = 0; k < 11; k++){
+    const bx = -34 + k * 6.6 + Math.sin(k*2.1)*2.2;
+    const bz = -16 - (k % 5) * 11.5;
+    const hgt = 11 + (k % 4) * 3.5;
+    for (let s = 0; s <= 34; s++){
+      const v = s / 34;
+      const sway = Math.sin(v*2.6 + t*1.25 + k) * v * 3.0;
+      splat(bx + sway, FY + 1 + v*hgt, bz + Math.cos(t*0.9+k)*v*1.1, 0.30 + v*0.22, false);
+    }
+  }
+}
+
+/* 6f. 魚群 */
+const FISH = [];
+for (let i = 0; i < 46; i++){
+  FISH.push({
+    o:(Math.random()-0.5)*7, oy:(Math.random()-0.5)*4.5, oz:(Math.random()-0.5)*9,
+    ph:Math.random()*6.28,
+  });
+}
+function drawFish(t){
+  // 整群沿一條緩慢的正弦路徑巡游
+  const gx = Math.sin(t*0.21) * 20;
+  const gy = 2.5 + Math.sin(t*0.17+1.2) * 4.0;
+  const gz = -34 + Math.cos(t*0.19) * 15;
+  const dir = Math.cos(t*0.21) > 0 ? 1 : -1;
+
+  for (const f of FISH){
+    const x = gx + f.o  + Math.sin(t*1.5+f.ph)*0.5;
+    const y = gy + f.oy + Math.sin(t*2.1+f.ph)*0.35;
+    const z = gz + f.oz;
+    // 身體 3 點 + 尾鰭 2 點，尾巴擺動
+    const tail = Math.sin(t*9 + f.ph) * 0.42;
+    splat(x,             y,        z, 0.88, false);
+    splat(x - 0.45*dir,  y,        z, 0.80, false);
+    splat(x - 0.9*dir,   y + tail*0.4, z, 0.70, false);
+    splat(x - 1.35*dir,  y + tail, z, 0.52, false);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   7. 背景（逐格，不走 3D）：深度漸層 + 光柱 + 焦散
+   ────────────────────────────────────────────────────────────── */
+function background(t){
+  for (let j = 0; j < ROWS; j++){
+    const v = j / ROWS;                       // 0=水面 1=海底
+    const depth = 0.40 * (1 - v) * (1 - v);   // 越靠水面越亮
+    const rowBase = j * COLS;
+
+    for (let i = 0; i < COLS; i++){
+      const u = i / COLS;
+
+      // 光柱：斜向下的平行帶，邊緣柔化，越深越淡
+      const s = u * 7.4 + v * 2.2;
+      let ray = Math.sin(s * 2.0 + Math.sin(s * 0.8 + t * 0.25) * 1.25 + t * 0.12);
+      ray = Math.pow(Math.max(0, ray), 7) * (1 - v) * 0.52;
+
+      // 焦散：兩組交錯的波紋，只出現在上半部
+      const ca = Math.sin(u*26 + t*1.5) * Math.sin(v*17 - t*1.1);
+      const caustic = Math.pow(Math.max(0, ca), 4) * Math.max(0, 1 - v*2.3) * 0.30;
+
+      const k = rowBase + i;
+      if (zbuf[k] === Infinity) lbuf[k] = depth + ray + caustic;
+      else                      lbuf[k] += (depth + ray + caustic) * 0.35; // 讓物件也吃到光
+    }
+  }
+}
+
+/* ── 8. 輸出：把亮度緩衝轉成一整塊字串 ────────────────────── */
+let depthOnly = false;
+
+function render(){
+  const NL = 10;
+  let w = 0;
+  for (let j = 0; j < ROWS; j++){
+    const rowBase = j * COLS;
+    for (let i = 0; i < COLS; i++){
+      const k = rowBase + i;
+      let L = depthOnly
+        ? (zbuf[k] === Infinity ? 0 : Math.max(0, 1 - zbuf[k] / 70))
+        : lbuf[k];
+
+      // 有序抖動：用 2×2 Bayer 打散條帶，灰階過渡更細
+      L += (((i & 1) ^ (j & 1)) ? 0.012 : -0.012);
+
+      if (L < 0) L = 0; else if (L > 1) L = 1;
+      codes[w++] = RAMP.charCodeAt((L * RMAX + 0.5) | 0);
+    }
+    codes[w++] = NL;
+  }
+
+  // 一次丟進 DOM；分段避免 apply 的參數上限
+  let out = "";
+  for (let p = 0; p < w; p += 4096){
+    out += String.fromCharCode.apply(null, codes.subarray(p, Math.min(p + 4096, w)));
+  }
+  pre.textContent = out;
+}
+
+/* ── 9. 主迴圈 ─────────────────────────────────────────────── */
+let paused = false, last = performance.now(), t = 0;
+let frames = 0, fpsLast = last, fps = 0;
+
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!paused) t += dt;
+
+  // 相機平滑跟隨滑鼠
+  cx += (mx - cx) * 0.06;
+  cy += (my - cy) * 0.06;
+  cam.yaw   = (cx - 0.5) * 0.52;
+  cam.pitch = -(cy - 0.5) * 0.34;
+  cam.x     = (cx - 0.5) * 6;
+  cam.y     = 1.5 - (cy - 0.5) * 5;
+  sinYaw = Math.sin(cam.yaw); cosYaw = Math.cos(cam.yaw);
+  sinPit = Math.sin(cam.pitch); cosPit = Math.cos(cam.pitch);
+
+  zbuf.fill(Infinity);
+  lbuf.fill(0);
+
+  drawFloor(t);
+  drawSurface(t);
+  drawSnow(t, paused ? 0 : dt);
+  drawJellyfish(t);
+  drawFish(t);
+  drawBubbles(t, paused ? 0 : dt);
+
+  background(t);
+  render();
+
+  frames++;
+  if (now - fpsLast > 500){
+    fps = Math.round(frames * 1000 / (now - fpsLast));
+    frames = 0; fpsLast = now;
+    stat.innerHTML =
+      `<b>${COLS}×${ROWS}</b> 格 · <b>${(COLS*ROWS).toLocaleString()}</b> 字元/禎 · <b>${fps}</b> fps`;
+  }
+}
+requestAnimationFrame(frame);
+
+/* ── 10. 鍵盤 ──────────────────────────────────────────────── */
+addEventListener("keydown", e => {
+  if (e.code === "Space"){ paused = !paused; e.preventDefault(); }
+  if (e.key === "c" || e.key === "C"){
+    rampIdx = (rampIdx + 1) % RAMPS.length;
+    RAMP = RAMPS[rampIdx]; RMAX = RAMP.length - 1;
+  }
+  if (e.key === "d" || e.key === "D") depthOnly = !depthOnly;
+});
+
+})();
+</script>
+</body>
+</html>
