@@ -25,6 +25,10 @@
     filter:drop-shadow(0 0 8px rgba(70,200,255,.20));
   }
 
+  /* 當動態桌布用的時候，滑鼠不動 4 秒後面板自動淡出 */
+  .panel{transition:opacity .9s ease}
+  body.idle .panel{opacity:0}
+
   .panel{
     position:fixed;background:rgba(1,5,12,.86);
     border:1px solid rgba(40,110,150,.35);border-radius:6px;
@@ -123,7 +127,11 @@ resize();
 const cam = { x:0, y:-7, z:0, yaw:0, pitch:-0.70, focal:1.08 };
 let mx = .5, my = .5, cx = .5, cy = .5;
 let sy = 0, cyw = 1, sp = 0, cp = 1;
-addEventListener("pointermove", e => { mx = e.clientX/innerWidth; my = e.clientY/innerHeight; });
+let idle = 0;   // 滑鼠靜止多久（秒）
+addEventListener("pointermove", e => {
+  mx = e.clientX/innerWidth; my = e.clientY/innerHeight;
+  idle = 0; document.body.classList.remove("idle");
+});
 
 /* 光：從水面斜射下來 */
 const LX = 0.26, LY = 0.95, LZ = 0.17;
@@ -198,8 +206,10 @@ const M = { W:12.5, C:7.8, T:1.6 };
 const MANTAS = [
   // az 刻意小：z 一遠一近會讓俯仰角變來變去，翼面一下就被壓成一條線。
   // 主要在 x 方向橫越畫面，視角才穩定。
-  { s:1.00, w:0.085, ax:27, az:5, cz:-30, y:13.0, ya:1.8, yw:0.21, ph:0.0, fs:1.55, A:6.4 },
-  { s:0.72, w:0.055, ax:24, az:5, cz:-42, y:17.5, ya:1.4, yw:0.17, ph:2.4, fs:1.80, A:6.0 },
+  // w 負號＝反方向繞，兩隻才會交錯而不是同手同腳。
+  // 半個週期就橫越整個畫面：主角約 24 秒、小隻約 18 秒。
+  { s:1.00, w: 0.13, ax:27, az:5, cz:-30, y:13.0, ya:1.8, yw:0.21, ph:0.0, fs:1.55, A:6.4 },
+  { s:0.72, w:-0.17, ax:23, az:6, cz:-37, y:16.0, ya:1.4, yw:0.17, ph:2.4, fs:1.80, A:6.0 },
 ];
 const mantaPos = { x:0, y:0, z:0 };
 
@@ -297,8 +307,10 @@ function drawMantas(t){
 // 刻意壓在蝠鱝航道的下方、左右兩側，避免疊在一起。
 // px/pz/pw 是緩慢的位置漂移，水母不是釘在原地。
 const JELLY = [
-  { x: 20, y:-5.0, z:-27, r:2.6, ph:0.0, sp:0.60, drift:0.9, px:5.5, pz:4.0, pw:0.055 },
-  { x:-19, y:-8.0, z:-34, r:3.1, ph:2.3, sp:0.45, drift:0.7, px:4.5, pz:5.0, pw:0.041 },
+  // y 要留出整條觸手的高度：相機仰視約 40 度，視錐下緣在 -3 度左右，
+  // 鐘體擺太低的話觸手會整條掉到畫面外。
+  { x: 20, y: 4.0, z:-27, r:2.6, ph:0.0, sp:0.60, drift:0.9, px:5.5, pz:4.0, pw:0.055 },
+  { x:-19, y: 5.5, z:-34, r:3.1, ph:2.3, sp:0.45, drift:0.7, px:4.5, pz:5.0, pw:0.041 },
 ];
 const jellyPos = { x:0, y:0, z:0 };
 
@@ -310,7 +322,7 @@ function drawJellyfish(t){
     const bx = J.x + Math.sin(t*J.pw + J.ph) * J.px
                    + Math.sin(t*J.sp*0.6 + J.ph*1.7) * J.drift;
     const by = J.y + Math.sin(t*J.sp + J.ph) * 1.6
-                   + Math.sin(t*J.pw*0.7 + J.ph) * 1.8;
+                   + Math.sin(t*J.pw*0.7 + J.ph) * 1.2;
     const bz = J.z + Math.cos(t*J.pw + J.ph) * J.pz;
     if (n === 0){ jellyPos.x = bx; jellyPos.y = by; jellyPos.z = bz; }
 
@@ -332,7 +344,7 @@ function drawJellyfish(t){
     for (let k = 0; k < 9; k++){
       const phi = k/9 * Math.PI*2 + J.ph*0.3;
       const cph = Math.cos(phi), sph = Math.sin(phi);
-      const r0 = J.r*0.82*rs, len = J.r*3.2;
+      const r0 = J.r*0.82*rs, len = J.r*2.4;
       for (let s = 0; s <= 24; s++){
         const v = s/24;
         const sway = Math.sin(v*3.4 - t*2.1 + J.ph + k) * (0.3 + v*1.2);
@@ -343,49 +355,20 @@ function drawJellyfish(t){
   }
 }
 
-/* ── 配角：氣泡與懸浮微粒 ───────────────────────────────── */
+/* ── 配角：只留氣泡。
+   水面波光、光柱、深度底色、懸浮微粒都拿掉了 —— 背景全黑，
+   畫面上的每一個字元都屬於某個實體。 ──────────────────── */
 const BUB = [];
-for (let i = 0; i < 80; i++)
-  BUB.push({ x:(Math.random()-.5)*44, y:-26+Math.random()*44, z:-8-Math.random()*46,
+// y 從 -6 起跳：再低就掉到相機視錐（下緣約 -3 度）外面，白畫
+for (let i = 0; i < 120; i++)
+  BUB.push({ x:(Math.random()-.5)*50, y:-6+Math.random()*26, z:-10-Math.random()*40,
              v:1.5+Math.random()*3, w:Math.random()*6.28, a:.25+Math.random()*.8 });
-
-const SNOW = [];
-for (let i = 0; i < 210; i++)
-  SNOW.push({ x:(Math.random()-.5)*62, y:-26+Math.random()*44, z:-5-Math.random()*54,
-              s:.12+Math.random()*.3, w:Math.random()*6.28 });
 
 function drawBubbles(t, dt){
   for (const b of BUB){
     b.y += b.v*dt;
-    if (b.y > 15){ b.y = -26; b.x = (Math.random()-.5)*44; b.z = -8-Math.random()*46; }
+    if (b.y > 20){ b.y = -6; b.x = (Math.random()-.5)*50; b.z = -10-Math.random()*40; }
     splat(b.x + Math.sin(t*2.4+b.w)*b.a, b.y, b.z, 0.92, b.a > .75);
-  }
-}
-function drawSnow(t, dt){
-  for (const p of SNOW){
-    p.y -= p.s*dt;
-    if (p.y < -28){ p.y = 16; p.x = (Math.random()-.5)*62; }
-    splat(p.x + Math.sin(t*.6+p.w)*.5, p.y, p.z, 0.26, false);
-  }
-}
-
-/* ── 背景（逐格，不走 3D）：深度 + 光柱 + 水面波光 ──────── */
-function background(t){
-  for (let j = 0; j < ROWS; j++){
-    const v = j/ROWS;
-    const depth = 0.052*(1-v)*(1-v);     // 水本身幾乎是空的，留白給主體
-    const surf  = Math.max(0, 1 - v*7.5);
-    const rowB  = j*COLS;
-    for (let i = 0; i < COLS; i++){
-      const u = i/COLS;
-      let ray = Math.sin(u*8.5 + v*2.0 + Math.sin(u*3.1 + t*0.22)*1.1 + t*0.1);
-      ray = Math.pow(Math.max(0, ray), 6) * (1-v) * 0.15;
-      const wave = Math.sin(u*21 + t*1.9)*0.5 + Math.sin(u*9 - t*1.3)*0.5;
-      const shimmer = surf * Math.pow(Math.max(0, wave), 3) * 0.55;
-      const k = rowB + i;
-      if (zbuf[k] === Infinity) lbuf[k] = depth + ray + shimmer;
-      else                      lbuf[k] += ray * 0.18;
-    }
   }
 }
 
@@ -433,8 +416,15 @@ function frame(now){
   last = now;
   if (!paused) t += dt;
 
-  cx += (mx - cx)*0.055;
-  cy += (my - cy)*0.055;
+  // 閒置超過 4 秒就接手鏡頭，讓它自己緩慢漂移（當桌布時不會有人動滑鼠）
+  idle += dt;
+  const auto = idle > 4;
+  if (auto) document.body.classList.add("idle");
+  const tx = auto ? 0.5 + Math.sin(t*0.07)        * 0.26 : mx;
+  const ty = auto ? 0.5 + Math.sin(t*0.051 + 1.3) * 0.18 : my;
+
+  cx += (tx - cx)*0.055;
+  cy += (ty - cy)*0.055;
 
   let want;
   if (mode === 1)      want = aimAt(mantaPos, 19);
@@ -451,11 +441,9 @@ function frame(now){
 
   zbuf.fill(Infinity); lbuf.fill(0);
 
-  drawSnow(t, paused ? 0 : dt);
   drawJellyfish(t);
   drawMantas(t);
   drawBubbles(t, paused ? 0 : dt);
-  background(t);
   render();
 
   frames++;
