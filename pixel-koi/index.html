@@ -42,7 +42,7 @@ const hud = document.getElementById("hud"), tag = document.getElementById("tag")
 
 // ── 參數 ───────────────────────────────────────────────────────────
 let CELL = 9;
-const VIS = 9;      // U/L → 擺尾頻率的視覺縮放（畫面速度刻意比真魚慢）            // 一個「像素」幾個螢幕 px
+                         // 一個「像素」幾個螢幕 px
 let PAUSED = false;
 let BLUR_ON = true;
 let THEME = 0;           // 0 深 / 1 淺
@@ -118,7 +118,7 @@ function makeKoi(seed){
   return {
     x: R()*GW, y: R()*GH,
     hd: R()*Math.PI*2,                            // 朝向
-    sp: (1.25 + 1.55*(1-depth)) * (0.80+R()*0.45),// 格 / 秒
+    spL: (0.30 + 0.22*(1-depth)) * (0.85+R()*0.32), // 體長 / 秒
     depth, len,
     // 平滑轉向：兩個慢速正弦疊起來當噪聲，再過一階低通
     nA: R()*6.283, nB: R()*6.283,
@@ -236,7 +236,7 @@ function drawKoi(k, t){
     const VS = Math.max(3, Math.round(hw*2.4));
     for(let iv=0; iv<=VS; iv++){
       const v=(iv/VS)*2-1;                 // -1..1
-      const lx = u*k.len;
+      const lx = (0.5 - u)*k.len;      // u=0 吻端在前、u=1 尾端在後
       const ly = v*hw + off;
       // 本地 → 世界
       const gx = k.x + lx*cs - ly*sn;
@@ -280,7 +280,7 @@ function drawKoi(k, t){
       const s=i/8;
       for(let j=0;j<=4;j++){
         const w=(j/4);
-        const lx=u0*k.len - s*fl*0.55;
+        const lx=(0.5-u0)*k.len - s*fl*0.55;
         const ly=side*(hw + s*fl*fan) + sway(u0,k);
         const gx=k.x + lx*cs - ly*sn;
         const gy=k.y + (lx*sn+ly*cs)*0.78;
@@ -293,29 +293,33 @@ function drawKoi(k, t){
 
 // ── 游動 ────────────────────────────────────────────────────────────
 function step(k, dt, t){
-  if(!k.spMax) k.spMax = k.sp;
+  if(!k.spMax) k.spMax = k.spL * k.len;      // 體長/秒 → 格/秒
 
   // ── 爆發-滑行：鯉科在低速時不是連續擺尾，是擺幾下再滑一段 ──
   k.burstT -= dt;
   if(k.burstT <= 0 && k.bursting <= 0){
-    k.bursting = 0.45 + k.R()*0.65;               // 爆發 0.45–1.1 秒
-    k.burstT   = 1.3 + k.R()*2.9;                 // 之後滑行 1.3–4.2 秒
+    k.bursting = 0.80 + k.R()*0.70;               // 爆發 0.45–1.1 秒
+    k.burstT   = 1.2 + k.R()*1.4;                 // 之後滑行 1.3–4.2 秒
   }
   const burst = k.bursting > 0;
   if(burst) k.bursting -= dt;
 
   // 擺尾振幅：爆發時全開，滑行時幾乎打直（真魚滑行時身體是直的）
-  const gTarget = burst ? 1.0 : 0.10;
+  const gTarget = burst ? 1.0 : 0.22;
   k.gain += (gTarget - k.gain) * Math.min(1, dt*(burst ? 7.0 : 2.0));
 
   // 速度：爆發期加速，滑行期只剩阻力
-  const thrust = burst ? k.spMax*3.0 : 0;
-  k.v += (thrust - k.v*1.25) * dt;
+  // 阻力時間常數 ≈ 2.9 秒：滑行會慢下來但不會停
+  const DRAG = 0.35;
+  const thrust = burst ? k.spMax*0.75 : 0;
+  k.v += (thrust - k.v*DRAG) * dt;
+  // 爆發與滑行的速度差控制在 ~3 倍（真魚大致如此），不要變成暴衝
+  k.v = Math.max(k.spMax*0.42, Math.min(k.spMax*1.65, k.v));
 
   // 擺尾頻率由 Strouhal 數反推：St = f·A / U，巡游魚 St≈0.3
   // A = 2×a(1)×L = 0.2L  →  f = 0.3·(U/L)/0.2 = 1.5·U/L
   const UoverL = k.v / k.len;
-  k.fq = Math.max(0.45, Math.min(2.4, 1.5*UoverL*VIS + (burst?0.35:0)));
+  k.fq = Math.max(0.35, Math.min(2.4, 1.5*UoverL + (burst?0.30:0)));
   k.phase += 2*Math.PI*k.fq*dt;                   // 累積相位，改頻率不會跳
 
   // ── 轉向：平滑噪聲 + 一階低通 ──
