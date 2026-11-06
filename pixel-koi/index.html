@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel Koi — 像素錦鯉</title>
+<style>
+  :root{ --bg:#0a0a0b; --fg:#9aa0a6; }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
+  body{cursor:default}           /* 鼠標永遠顯示 */
+  #c{display:block;width:100%;height:100%;image-rendering:pixelated}
+  #hud{
+    position:fixed;left:18px;bottom:16px;z-index:5;pointer-events:none;
+    font:500 11px/1.75 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    color:var(--fg);letter-spacing:.06em;opacity:.0;transition:opacity .5s;
+    text-shadow:0 1px 3px rgba(0,0,0,.9);
+  }
+  #hud.on{opacity:.62}
+  #hud b{color:#d8dadd;font-weight:600}
+  #tag{
+    position:fixed;right:18px;top:14px;z-index:5;pointer-events:none;
+    font:600 10px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.22em;
+    color:var(--fg);opacity:0;transition:opacity .5s;text-transform:uppercase;
+  }
+  #tag.on{opacity:.4}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="tag">pixel koi</div>
+<div id="hud">
+  <b>空白</b> 暫停　<b>+ −</b> 像素大小　<b>C</b> 配色　<b>B</b> 景深模糊　<b>R</b> 重新放魚　<b>H</b> 隱藏
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d", {alpha:false});
+const hud = document.getElementById("hud"), tag = document.getElementById("tag");
+
+// ── 參數 ───────────────────────────────────────────────────────────
+let CELL = 9;            // 一個「像素」幾個螢幕 px
+let PAUSED = false;
+let BLUR_ON = true;
+let THEME = 0;           // 0 深 / 1 淺
+
+const THEMES = [
+  { bg:[10,10,11],   fade:[10,10,11],   fg:"#9aa0a6" },   // 深水
+  { bg:[238,236,231], fade:[238,236,231], fg:"#5b6066" }   // 淺水（原 PO 的 light）
+];
+
+// 錦鯉配色（白底、緋、墨）
+const C_WHITE  = [236,232,224];
+const C_CREAM  = [214,206,192];
+const C_RED    = [206,88,26];
+const C_RED_LT = [232,134,52];
+const C_SUMI   = [30,26,24];
+const C_DARK   = [74,56,44];      // 深褐底（烏鯉）
+const C_DARK_LT= [104,80,62];
+
+// ── 格點緩衝 ────────────────────────────────────────────────────────
+let GW=0, GH=0, acc=null, img=null, small=null, sctx=null;
+
+function resize(){
+  const dpr = 1; // 刻意不用 devicePixelRatio，像素感才明確
+  cv.width  = Math.floor(innerWidth  * dpr);
+  cv.height = Math.floor(innerHeight * dpr);
+  GW = Math.max(40, Math.ceil(cv.width  / CELL));
+  GH = Math.max(30, Math.ceil(cv.height / CELL));
+  acc = new Float32Array(GW*GH*4);          // r,g,b,a 累加
+  small = document.createElement("canvas");
+  small.width = GW; small.height = GH;
+  sctx = small.getContext("2d");
+  img = sctx.createImageData(GW, GH);
+  ctx.imageSmoothingEnabled = false;
+  spawn();
+}
+
+// ── 亂數（可重現） ──────────────────────────────────────────────────
+function mulberry(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+// ── 一隻錦鯉 ────────────────────────────────────────────────────────
+function makeKoi(seed){
+  const R = mulberry(seed*9781+13);
+  const depth = R();                              // 0 近 → 1 遠
+  const len   = (0.16 + 0.17*(1-depth)) * Math.min(GW,GH*1.7); // 格數
+  const kind  = R();                              // 花色類型
+
+  // 程序化花紋：幾塊緋斑 +（有時）墨斑
+  const patches = [];
+  const nRed = 1 + (R()*2|0);
+  for(let i=0;i<nRed;i++)
+    patches.push({u:0.14+R()*0.50, v:(R()*2-1)*0.38, r:0.125+R()*0.105, c:1});
+  if(kind>0.40){
+    const nSumi = 1 + (R()*2|0);
+    for(let i=0;i<nSumi;i++)
+      patches.push({u:0.14+R()*0.5, v:(R()*2-1)*0.6, r:0.075+R()*0.085, c:2});
+  }
+  const allWhite = kind < 0.10;                  // 偶爾來一隻全白
+  const dark     = kind > 0.78;                  // 偶爾來一隻深褐底
+
+  return {
+    x: R()*GW, y: R()*GH,
+    hd: R()*Math.PI*2,                            // 朝向
+    sp: (1.25 + 1.55*(1-depth)) * (0.80+R()*0.45),// 格 / 秒
+    depth, len,
+    // 平滑轉向：兩個慢速正弦疊起來當噪聲，再過一階低通
+    nA: R()*6.283, nB: R()*6.283,
+    nAs: 0.055 + R()*0.075,                       // rad/s
+    nBs: 0.018 + R()*0.034,
+    turnAmp: 0.085 + R()*0.145,                   // rad/s 上限
+    turnRate: 0, bend: 0,
+    wid: 0.106 + R()*0.030,                         // 身體寬 / 身長
+    ph: R()*Math.PI*2,                            // 擺尾相位
+    fq: 0.50 + R()*0.28,                          // 擺尾頻率（Hz）
+    patches, allWhite, dark,
+    R
+  };
+}
+
+let koi = [];
+function spawn(){
+  const n = Math.max(8, Math.min(18, Math.round(GW*GH/900)));
+  koi = [];
+  for(let i=0;i<n;i++) koi.push(makeKoi(Math.random()*1e6|0));
+  koi.sort((a,b)=> b.depth - a.depth);            // 遠的先畫
+}
+
+// ── 體型 ────────────────────────────────────────────────────────────
+// u: 0 吻端 → 1 尾鰭末端。0.78 之後是尾鰭。
+const TAIL0 = 0.745;
+function halfWidth(u, k){
+  if(u < TAIL0){
+    const t = u/TAIL0;
+    // 紡錘：t≈0.30 最寬，尾柄收到很細
+    return k.wid * k.len * (Math.pow(Math.sin(Math.PI*Math.pow(t,0.72)),1.00)*(1-0.58*Math.pow(t,2.2)) + 0.095*Math.pow(t,3));
+  }
+  // 尾鰭：往外開扇（不受 wid 影響，直接用身長算）
+  const t=(u-TAIL0)/(1-TAIL0);
+  return k.len * (0.020 + 0.112*Math.pow(t,0.95));
+}
+function thickness(u,k){            // 背腹厚度，純粹用來打光
+  if(u>=TAIL0) return 0.10;
+  const t=u/TAIL0;
+  return Math.pow(Math.sin(Math.PI*Math.pow(t,0.72)),0.85);
+}
+// 行進波：振幅往尾端長大，相位沿身體延遲
+function sway(u, k, t){
+  const amp = 0.008 + 0.058*Math.pow(u,2.0);
+  const wave = amp * Math.sin(2*Math.PI*(u*0.80 - t*k.fq) + k.ph);
+  // 轉彎時全身彎成弧形（魚不是整隻平移轉向，是身體先彎）
+  const curve = k.bend * 0.175 * Math.pow(u, 1.45);
+  return (wave + curve) * k.len;
+}
+
+function patternAt(u,v,k){
+  if(k.allWhite) return C_WHITE;
+  if(k.dark){
+    for(const p of k.patches){
+      const du=(u-p.u)*1.05, dv=(v-p.v)*0.30;
+      if(du*du+dv*dv < p.r*p.r) return p.c===1 ? C_RED_LT : C_SUMI;
+    }
+    return C_DARK;
+  }
+  for(const p of k.patches){
+    const du=(u-p.u)*1.05, dv=(v-p.v)*0.30;
+    if(du*du+dv*dv < p.r*p.r) return p.c===1 ? C_RED : C_SUMI;
+  }
+  return C_WHITE;
+}
+
+// ── 把一個樣本灑進格點 ──────────────────────────────────────────────
+function splat(gx, gy, col, a, blur){
+  if(a<=0.004) return;
+  const x0=Math.floor(gx), y0=Math.floor(gy);
+  if(!blur){
+    if(x0<0||y0<0||x0>=GW||y0>=GH) return;
+    const i=(y0*GW+x0)*4;
+    const ia=1-a;
+    acc[i  ]=acc[i  ]*ia+col[0]*a;
+    acc[i+1]=acc[i+1]*ia+col[1]*a;
+    acc[i+2]=acc[i+2]*ia+col[2]*a;
+    acc[i+3]=acc[i+3]*ia+a;
+    return;
+  }
+  // 3x3 柔化（景深）
+  const w=[[0.6,1,0.6],[1,1.9,1],[0.6,1,0.6]];
+  for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){
+    const x=x0+dx, y=y0+dy;
+    if(x<0||y<0||x>=GW||y>=GH) continue;
+    const aa = a * w[dy+1][dx+1] * 0.125 * (1+blur*1.5);
+    if(aa<=0.003) continue;
+    const i=(y*GW+x)*4, ia=1-Math.min(aa,1);
+    acc[i  ]=acc[i  ]*ia+col[0]*aa;
+    acc[i+1]=acc[i+1]*ia+col[1]*aa;
+    acc[i+2]=acc[i+2]*ia+col[2]*aa;
+    acc[i+3]=acc[i+3]*ia+aa;
+  }
+}
+
+const tmp=[0,0,0];
+function drawKoi(k, t){
+  const cs=Math.cos(k.hd), sn=Math.sin(k.hd);
+  const blur = BLUR_ON ? Math.pow(Math.max(0,k.depth-0.35)/0.65,1.3) : 0;
+  const dim  = 0.40 + 0.60*(1-k.depth);
+  const US = Math.max(34, Math.round(k.len*2.2));
+  let eyeX=0, eyeY=0, eyeOK=false;
+  for(let iu=0; iu<=US; iu++){
+    const u=iu/US;
+    const hw=halfWidth(u,k);
+    if(hw<=0.01) continue;
+    const off=sway(u,k,t);
+    const isFin = u>=TAIL0;
+    const ft = isFin ? (u-TAIL0)/(1-TAIL0) : 0;
+    const VS = Math.max(3, Math.round(hw*2.4));
+    for(let iv=0; iv<=VS; iv++){
+      const v=(iv/VS)*2-1;                 // -1..1
+      const lx = u*k.len;
+      const ly = v*hw + off;
+      // 本地 → 世界
+      const gx = k.x + lx*cs - ly*sn;
+      const gy = k.y + (lx*sn + ly*cs)*0.78;   // 俯視壓扁
+      // 打光：背部（|v| 小）亮
+      const top = Math.sqrt(Math.max(0,1-v*v));
+      const sh  = isFin ? (0.82 + 0.18*top) : (0.52 + 0.48*top*thickness(u,k));
+      let col, a;
+      if(isFin){
+        col = k.dark ? C_DARK_LT : C_WHITE;
+        // 分叉：尾端中央透空
+        const fork = 1 - 0.42*Math.exp(-(v*v)/0.10)*Math.pow(ft,1.6);
+        a = (0.88 - 0.42*Math.pow(ft,1.1)) * (1-0.20*Math.abs(v)) * fork;
+      }else{
+        col = patternAt(u,v,k);
+        a   = 1.0 - 0.45*Math.pow(Math.abs(v),8);
+      }
+      const g=sh*dim;
+      tmp[0]=col[0]*g; tmp[1]=col[1]*g; tmp[2]=col[2]*g;
+      if(col===C_DARK && top>0.74){ tmp[0]=C_DARK_LT[0]*g; tmp[1]=C_DARK_LT[1]*g; tmp[2]=C_DARK_LT[2]*g; }
+      else if(col===C_RED && top>0.72){ tmp[0]=C_RED_LT[0]*g; tmp[1]=C_RED_LT[1]*g; tmp[2]=C_RED_LT[2]*g; }
+      splat(gx, gy, tmp, a, blur);
+      if(!eyeOK && u>=0.085 && u<=0.11 && Math.abs(Math.abs(v)-0.80)<0.14){
+        eyeX=gx; eyeY=gy; eyeOK=true;
+      }
+    }
+  }
+  // 眼睛
+  if(eyeOK && k.len>14){
+    tmp[0]=C_SUMI[0]; tmp[1]=C_SUMI[1]; tmp[2]=C_SUMI[2];
+    splat(eyeX, eyeY, tmp, 0.9, 0);
+  }
+  // 胸鰭
+  for(const side of [-1,1]){
+    const u0=0.27, hw=halfWidth(u0,k);
+    const fl=k.len*0.105, fan=0.55+0.25*Math.sin(t*2.2+k.ph+ (side>0?0:1.7));
+    for(let i=0;i<=8;i++){
+      const s=i/8;
+      for(let j=0;j<=4;j++){
+        const w=(j/4);
+        const lx=u0*k.len - s*fl*0.55;
+        const ly=side*(hw + s*fl*fan) + sway(u0,k,t);
+        const gx=k.x + lx*cs - ly*sn;
+        const gy=k.y + (lx*sn+ly*cs)*0.78;
+        const pg=0.9*dim; tmp[0]=C_CREAM[0]*pg; tmp[1]=C_CREAM[1]*pg; tmp[2]=C_CREAM[2]*pg;
+        splat(gx,gy,tmp, 0.26*(1-s*0.85)*(1-w*0.55), blur);
+      }
+    }
+  }
+}
+
+// ── 游動 ────────────────────────────────────────────────────────────
+function step(k, dt, t){
+  // 平滑噪聲 → 目標轉向速度
+  k.nA += dt * k.nAs * 6.283;
+  k.nB += dt * k.nBs * 6.283;
+  let target = (Math.sin(k.nA)*0.6 + Math.sin(k.nB)*0.4) * k.turnAmp;
+
+  // 分離：太近的話，把「讓開」當成轉向目標的一部分，不要直接扭朝向
+  for(const o of koi){
+    if(o===k) continue;
+    const dx=o.x-k.x, dy=(o.y-k.y)/0.78, d2=dx*dx+dy*dy;
+    const rr=(k.len+o.len)*0.60;
+    if(d2 < rr*rr && d2 > 0.01){
+      const ang=Math.atan2(dy,dx);
+      let diff=((k.hd-ang+Math.PI)%(2*Math.PI))-Math.PI;
+      target += (diff>0?1:-1) * 0.42 * (1 - Math.sqrt(d2)/rr);
+    }
+  }
+
+  // 一階低通：轉向速度不能瞬間改變，這是「順」的關鍵
+  k.turnRate += (target - k.turnRate) * Math.min(1, dt*1.35);
+  k.hd += k.turnRate * dt;
+
+  // 身體彎曲跟著實際轉向速度走（略為延遲，像真的魚）
+  const want = Math.max(-1, Math.min(1, k.turnRate / 0.42));
+  k.bend += (want - k.bend) * Math.min(1, dt*2.6);
+
+  // 推力隨擺尾脈動：擺到底推一下，中間滑行
+  const beat = Math.abs(Math.sin(2*Math.PI*(-t*k.fq) + k.ph));
+  const thrust = 0.80 + 0.30*beat;
+  const v = k.sp * thrust * (1 - 0.35*Math.abs(k.bend));   // 轉彎會減速
+  k.x += Math.cos(k.hd) * v * dt;
+  k.y += Math.sin(k.hd) * v * dt * 0.78;
+
+  // 繞回對側：邊界只留剛好游得出去的寬度，並重新灑在另一側
+  const m = k.len*0.55;
+  if(k.x < -m){ k.x = GW+m; k.y = -m + Math.random()*(GH+2*m); }
+  else if(k.x > GW+m){ k.x = -m; k.y = -m + Math.random()*(GH+2*m); }
+  if(k.y < -m){ k.y = GH+m; k.x = -m + Math.random()*(GW+2*m); }
+  else if(k.y > GH+m){ k.y = -m; k.x = -m + Math.random()*(GW+2*m); }
+}
+
+// ── 主迴圈 ──────────────────────────────────────────────────────────
+let last=performance.now(), tt=0;
+function frame(now){
+  const dt=Math.max(0, Math.min(0.05,(now-last)/1000)); last=now;
+  if(!PAUSED) tt+=dt;
+
+  const th=THEMES[THEME];
+  // 背景（直接填底色，不留殘影）
+  for(let i=0;i<acc.length;i+=4){
+    acc[i]=th.bg[0]; acc[i+1]=th.bg[1]; acc[i+2]=th.bg[2]; acc[i+3]=1;
+  }
+  for(const k of koi){ if(!PAUSED) step(k,dt,tt); drawKoi(k,tt); }
+
+  const d=img.data;
+  for(let i=0,j=0;i<acc.length;i+=4,j+=4){
+    d[j]=acc[i]|0; d[j+1]=acc[i+1]|0; d[j+2]=acc[i+2]|0; d[j+3]=255;
+  }
+  sctx.putImageData(img,0,0);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(small,0,0,GW,GH,0,0,cv.width,cv.height);
+  requestAnimationFrame(frame);
+}
+
+// ── 互動 ────────────────────────────────────────────────────────────
+let hideT;
+function poke(){
+  hud.classList.add("on"); tag.classList.add("on");
+  clearTimeout(hideT);
+  hideT=setTimeout(()=>{hud.classList.remove("on");tag.classList.remove("on");},3800);
+}
+addEventListener("mousemove",poke,{passive:true});
+addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if(k===" "){ PAUSED=!PAUSED; e.preventDefault(); }
+  else if(k==="+"||k==="="){ CELL=Math.min(22,CELL+1); resize(); }
+  else if(k==="-"||k==="_"){ CELL=Math.max(4,CELL-1); resize(); }
+  else if(k==="c"){ THEME=(THEME+1)%THEMES.length;
+                    document.documentElement.style.setProperty("--bg", `rgb(${THEMES[THEME].bg.join(",")})`);
+                    document.documentElement.style.setProperty("--fg", THEMES[THEME].fg); }
+  else if(k==="b"){ BLUR_ON=!BLUR_ON; }
+  else if(k==="r"){ spawn(); }
+  else if(k==="h"){ hud.classList.toggle("on"); tag.classList.toggle("on"); return; }
+  poke();
+});
+addEventListener("resize",()=>{ clearTimeout(window.__rz); window.__rz=setTimeout(resize,140); });
+
+resize(); poke(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
